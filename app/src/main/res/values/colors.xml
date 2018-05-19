@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#40A4C4</color>
+    <color name="colorPrimaryDark">#33839C</color>
+    <color name="not_selected_tab_light">#262B2E</color>
+    <color name="darkThemePrimary">#3F4D50</color>
+    <color name="darkThemePrimaryDark">#323D3F</color>
+    <color name="colorAccent">#ff4081</color>
+    <color name="middle_gray">#d6d6d6</color>
+    <color name="ripple_color">#50ffffff</color>
+    <color name="start_record">#D55548</color>
+    <color name="splash_screen">#364145</color>
+    <color name="create_acc_button_press">#2C7389</color>
+    <color name="enter_button_press">#C6E4EE</color>
+    <color name="ic_people_color">#A3B6BC</color>
+    <color name="user_name_color">#B8C1C6</color>
+    <color name="account_user_name_color">#ACCEDA</color>
+    <color name="stream_initialization">#44000000</color>
+    <color name="edit_account_icons">#69AB63</color>
+    <color name="edit_account_profile_img_background">#9940A4C4</color>
+    <color name="chat_edit_text_decor">#60B8C1C6</color>
+    <color name="user_disconnected_color">#e50909</color>
+</resources>
