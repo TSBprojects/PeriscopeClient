@@ -44,7 +44,7 @@ public class RetrofitWrapper {
         tokenUtils = new TokenUtils(context);
         sharedPrefWrapper = new SharedPrefWrapper(context);
         retrofit2.Retrofit retrofit = new retrofit2.Retrofit.Builder()
-                .baseUrl("http://anton-var.ddns.net:8080")
+                .baseUrl(String.format("http://%1$s:%2$s", context.getString(R.string.server_domain_name), context.getString(R.string.server_port)))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         periscopeApi = retrofit.create(PeriscopeApi.class);

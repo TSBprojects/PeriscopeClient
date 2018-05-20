@@ -474,7 +474,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
 
     private void setActivitiesItems() {
         HOST = getString(R.string.server_domain_name);
-        SERVER_PORT = getString(R.string.servers_port);
+        SERVER_PORT = getString(R.string.server_port);
 
         mFusedLocationClient = new FusedLocationProviderClient(this);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);

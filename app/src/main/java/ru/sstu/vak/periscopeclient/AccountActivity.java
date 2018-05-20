@@ -30,16 +30,10 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ru.sstu.vak.periscopeclient.Retrofit.PeriscopeApi;
 import ru.sstu.vak.periscopeclient.Retrofit.RetrofitWrapper;
-import ru.sstu.vak.periscopeclient.Retrofit.models.MyRequest;
-import ru.sstu.vak.periscopeclient.Retrofit.models.MyResponse;
-import ru.sstu.vak.periscopeclient.Retrofit.models.RoomModel;
 import ru.sstu.vak.periscopeclient.Retrofit.models.UserModel;
 import ru.sstu.vak.periscopeclient.infrastructure.SharedPrefWrapper;
 import ru.sstu.vak.periscopeclient.infrastructure.TokenUtils;
@@ -280,7 +274,7 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
 
     private void initializeServerApi() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(String.format("http://%1$s:%2$s", getString(R.string.server_domain_name), getString(R.string.servers_port)))
+                .baseUrl(String.format("http://%1$s:%2$s", getString(R.string.server_domain_name), getString(R.string.server_port)))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         periscopeApi = retrofit.create(PeriscopeApi.class);

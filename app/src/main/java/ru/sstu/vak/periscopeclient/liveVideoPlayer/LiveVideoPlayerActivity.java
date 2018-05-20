@@ -423,7 +423,7 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
 
     private void initializeServerApi() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(String.format("http://%1$s:%2$s", getString(R.string.server_domain_name), getString(R.string.servers_port)))
+                .baseUrl(String.format("http://%1$s:%2$s", getString(R.string.server_domain_name), getString(R.string.server_port)))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         periscopeApi = retrofit.create(PeriscopeApi.class);
@@ -511,7 +511,7 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
 
     private void setActivitiesItems() {
         HOST = getString(R.string.server_domain_name);
-        SERVER_PORT = getString(R.string.servers_port);
+        SERVER_PORT = getString(R.string.server_port);
         streamName = getIntent().getStringExtra("streamName");
         retrofitWrapper = new RetrofitWrapper(this);
         tokenUtils = new TokenUtils(this);

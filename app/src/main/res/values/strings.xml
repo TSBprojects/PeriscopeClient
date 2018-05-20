@@ -43,7 +43,7 @@
     <string name="title_activity_record">RecordActivity</string>
     <string name="title_activity_maps">Map</string>
     <string name="server_domain_name">anton-var.ddns.net</string>
-    <string name="servers_port">8080</string>
+    <string name="server_port">8080</string>
     <string name="turn_on_gps_message">Пожалуйста, включите позиционирование по GPS, WiFi и мобильным сетям в системных настройках, чтобы другие пользователи могли видеть откуда вы ведёте трансляцию.</string>
     <string name="thread_initialization">Инициализация потока…</string>
     <string name="yes">Да</string>

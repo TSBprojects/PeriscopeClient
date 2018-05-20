@@ -1,6 +1,5 @@
 package ru.sstu.vak.periscopeclient;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -12,11 +11,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -30,17 +27,10 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ru.sstu.vak.periscopeclient.Retrofit.PeriscopeApi;
 import ru.sstu.vak.periscopeclient.Retrofit.RetrofitWrapper;
-import ru.sstu.vak.periscopeclient.Retrofit.models.MyRequest;
 import ru.sstu.vak.periscopeclient.Retrofit.models.MyResponse;
 import ru.sstu.vak.periscopeclient.Retrofit.models.UserModel;
 import ru.sstu.vak.periscopeclient.infrastructure.LoadingDialog;
@@ -272,7 +262,7 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
 
     private void initializeServerApi() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(String.format("http://%1$s:%2$s", getString(R.string.server_domain_name), getString(R.string.servers_port)))
+                .baseUrl(String.format("http://%1$s:%2$s", getString(R.string.server_domain_name), getString(R.string.server_port)))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         periscopeApi = retrofit.create(PeriscopeApi.class);
