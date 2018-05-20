@@ -68,4 +68,6 @@
     <string name="first_tab">Список</string>
     <string name="second_tab">Карта</string>
     <string name="on_air">Прямой эфир</string>
+    <string name="file_is_too_big">Слишком большой файл!</string>
+    <string name="at_least_3_characters">логин должен содержать не менее 3 символов!</string>
 </resources>

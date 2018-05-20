@@ -11,6 +11,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -55,7 +56,6 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
     private Timer mTimer;
     private MyTimerTask mMyTimerTask;
 
-    // private ArrayList<LivePlayer> previewList;
 
     public static BroadcastsFragment newInstance(int pageNum) {
         BroadcastsFragment pageFragment = new BroadcastsFragment();

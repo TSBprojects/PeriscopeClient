@@ -76,7 +76,7 @@ public class BroadcastsAdapter extends RecyclerView.Adapter<BroadcastsAdapter.Br
         streamPreview.onStop();
         broadcast.setStreamPreview(new LivePlayer(streamPreview.getSimpleExoPlayerView(), broadcast.getStreamName(), context));
         broadcast.setObserversCount(observersCount);
-        notifyItemRemoved(position);
+        notifyItemChanged(position);
     }
 
     private void addItem(BroadcastsModel broadcast) {

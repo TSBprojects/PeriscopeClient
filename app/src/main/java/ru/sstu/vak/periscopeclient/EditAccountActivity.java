@@ -76,7 +76,6 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
         setFields();
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
@@ -183,7 +182,7 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
         if (file.length() <= 1048576) {
             return true;
         }
-        showMessage("Слишком большой файл!");
+        showMessage(getString(R.string.file_is_too_big));
         return false;
     }
 
@@ -201,7 +200,7 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
     private boolean isValidForm() {
         if (login_field.getText().toString().length() < 3) {
             login_error_field.setVisibility(View.VISIBLE);
-            login_error_field.setText("логин должен содержать не менее 3 символов!");
+            login_error_field.setText(R.string.at_least_3_characters);
             return false;
         } else {
             login_error_field.setVisibility(View.INVISIBLE);

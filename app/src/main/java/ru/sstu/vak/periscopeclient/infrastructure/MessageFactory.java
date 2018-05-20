@@ -28,6 +28,10 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import ru.sstu.vak.periscopeclient.R;
 
 public class MessageFactory {
+    private final int SHOW_DURATION = 400;
+    private final int STATE_VISIBLE_DURATION = 6000;
+    private final int REMOVE_DURATION = 1000;
+
     private Context context;
     private LinearLayout messages_layout;
     private Point SCREEN_SIZE;
@@ -75,14 +79,14 @@ public class MessageFactory {
         params.bottomMargin = -messageLayoutHeight;
         joinedCardVie.setLayoutParams(params);
 
-        showLayout(joinedCardVie, 300);
-        new CountDownTimer(4000, 4000) {
+        showLayout(joinedCardVie, SHOW_DURATION);
+        new CountDownTimer(STATE_VISIBLE_DURATION, STATE_VISIBLE_DURATION) {
             public void onTick(long millisUntilFinished) {
             }
 
             public void onFinish() {
                 joinedCardVie.animate()
-                        .setDuration(1000)
+                        .setDuration(REMOVE_DURATION)
                         .alpha(0).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
@@ -148,14 +152,14 @@ public class MessageFactory {
         params.bottomMargin = -messageLayoutHeight;
         messageLayout.setLayoutParams(params);
 
-        showLayout(messageLayout, 400);
-        new CountDownTimer(4000, 4000) {
+        showLayout(messageLayout, SHOW_DURATION);
+        new CountDownTimer(STATE_VISIBLE_DURATION, STATE_VISIBLE_DURATION) {
             public void onTick(long millisUntilFinished) {
             }
 
             public void onFinish() {
                 messageLayout.animate()
-                        .setDuration(1000)
+                        .setDuration(REMOVE_DURATION)
                         .alpha(0).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {

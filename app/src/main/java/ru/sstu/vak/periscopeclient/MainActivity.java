@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
@@ -22,9 +21,6 @@ import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import ru.sstu.vak.periscopeclient.Retrofit.PeriscopeApi;
 import ru.sstu.vak.periscopeclient.infrastructure.SharedPrefWrapper;
 import ru.sstu.vak.periscopeclient.infrastructure.TokenUtils;
 import ru.sstu.vak.periscopeclient.liveVideoBroadcaster.RecordActivity;
@@ -43,8 +39,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FloatingActionButton record_activity_fab;
     private TokenUtils tokenUtils;
     private SharedPrefWrapper sharedPrefWrapper;
-
-
 
 
     @Override
