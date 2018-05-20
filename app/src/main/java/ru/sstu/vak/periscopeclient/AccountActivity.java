@@ -280,7 +280,7 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
 
     private void initializeServerApi() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(String.format("http://%1$s:%2$s",R.string.server_domain_name,R.string.servers_port))
+                .baseUrl(String.format("http://%1$s:%2$s", getString(R.string.server_domain_name), getString(R.string.servers_port)))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         periscopeApi = retrofit.create(PeriscopeApi.class);

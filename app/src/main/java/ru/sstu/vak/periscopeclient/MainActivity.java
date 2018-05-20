@@ -1,5 +1,6 @@
 package ru.sstu.vak.periscopeclient;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,7 +35,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static String RTMP_BASE_URL;
     boolean darkTheme;
     boolean exit = false;
-    private PeriscopeApi periscopeApi;
     private MainActivity instance;
     private ViewPager pager;
     private MyFragmentPagerAdapter pagerAdapter;
@@ -52,14 +52,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(ru.sstu.vak.periscopeclient.R.layout.activity_main);
 
         setActivitiesItems();
-        initializeServerApi();
 
         //check ref token
         String token = tokenUtils.getToken();
@@ -77,7 +75,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         tab_bar.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+
             @Override
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
             public void onTabSelected(TabLayout.Tab tab) {
                 switch (tab.getPosition()) {
                     case 0:
@@ -163,47 +163,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-//    public void openVideoBroadcaster() {
-//        Intent i = new Intent(this, RecordActivity.class);
-//        startActivity(i);
-//    }
-//
-//    public void openVideoPlayer(View view) {
-//        Intent i = new Intent(this, LiveVideoPlayerActivity.class);
-//        startActivity(i);
-//    }
-
-//    private boolean isTokenValid(String token) {
-//        final boolean[] res = new boolean[1];
-//        Call<MyResponse<Boolean>> call = periscopeApi.isTokenValid(new MyRequest<Void>(null, token));
-//
-//        call.enqueue(new Callback<MyResponse<Boolean>>() {
-//            @Override
-//            public void onResponse(Call<MyResponse<Boolean>> call, Response<MyResponse<Boolean>> response) {
-//                if (response.isSuccessful()) {
-//                    MyResponse<Boolean> resp = response.body();
-//                    if (resp.getError() == null) {
-//                        res[0] = true;
-//                    } else {
-//                        res[0] = false;
-//                    }
-//                } else {
-//                    showMessage("Сервер вернул ошибку");
-//                    res[0] = false;
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onFailure(Call<MyResponse<Boolean>> call, Throwable t) {
-//                showMessage("Сервер не отвечает");
-//                res[0] = false;
-//            }
-//        });
-//        return res[0];
-//    }
-
-
     private void setCurrentIP() {
         Thread t = new Thread(new Runnable() {
             @Override
@@ -230,12 +189,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setActivitiesItems() {
-
-        record_activity_fab = (FloatingActionButton) findViewById(R.id.record_activity_fab);
+        record_activity_fab = findViewById(R.id.record_activity_fab);
         record_activity_fab.setOnClickListener(this);
-        tool_bar = (Toolbar) findViewById(R.id.my_toolbar);
-        tab_bar = (TabLayout) findViewById(R.id.tab_bar);
-        pager = (ViewPager) findViewById(R.id.pager);
+        tab_bar = findViewById(R.id.tab_bar);
+        tool_bar = findViewById(R.id.my_toolbar);
+        pager = findViewById(R.id.pager);
         tokenUtils = new TokenUtils(this);
         sharedPrefWrapper = new SharedPrefWrapper(this);
     }
@@ -245,25 +203,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pager.setAdapter(pagerAdapter);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+
     private void initializeTabBar() {
         tab_bar.setupWithViewPager(pager);
         tab_bar.getTabAt(0).setIcon(R.drawable.ic_format_list_bulleted_24dp);
         tab_bar.getTabAt(0).setText("");
-        tab_bar.getTabAt(0).setContentDescription("Список");
+        tab_bar.getTabAt(0).setContentDescription(getString(R.string.first_tab));
         tab_bar.getTabAt(1).setIcon(R.drawable.ic_world_24dp);
         tab_bar.getTabAt(1).setText("");
-        tab_bar.getTabAt(1).setContentDescription("Карта");
-        tab_bar.setBackground(getDrawable(R.drawable.ripple));
+        tab_bar.getTabAt(1).setContentDescription(getString(R.string.second_tab));
+        tab_bar.setBackground(getResources().getDrawable(R.drawable.ripple));
     }
 
-    private void initializeServerApi() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(String.format("http://%1$s:%2$s", R.string.server_domain_name, R.string.servers_port))
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        periscopeApi = retrofit.create(PeriscopeApi.class);
-    }
 
     private void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();

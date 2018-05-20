@@ -119,8 +119,8 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
     private HeartLayout heartLayout;
 
     private final String TAG = "RecordActivity";
-    private final String HOST = getString(R.string.server_domain_name);
-    private final String SERVER_PORT = getString(R.string.servers_port);
+    private String HOST;
+    private String SERVER_PORT;
     private String streamName;
     private StompClient mStompClient;
     private Gson mGson = new GsonBuilder().create();
@@ -473,6 +473,9 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void setActivitiesItems() {
+        HOST = getString(R.string.server_domain_name);
+        SERVER_PORT = getString(R.string.servers_port);
+
         mFusedLocationClient = new FusedLocationProviderClient(this);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
@@ -602,8 +605,6 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
         mBroadcastControlButton = (Button) findViewById(R.id.start_broadcasting);
         mStopBroadcasting = (Button) findViewById(R.id.stop_broadcasting);
 
-        // Configure the GLSurfaceView.  This will start the Renderer thread, with an
-        // appropriate EGL activity.
         mGLView = (GLSurfaceView) findViewById(R.id.cameraPreview_surfaceView);
         if (mGLView != null) {
             mGLView.setEGLContextClientVersion(2);     // select GLES 2.0
@@ -612,8 +613,8 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         initializeScreenSize();
-        initializeServerApi();
         setActivitiesItems();
+        initializeServerApi();
         initializeLocationManager();
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -65,4 +65,7 @@
     <string name="enter_password">введите пароль!</string>
     <string name="confirm_password">подтвердите пароль!</string>
     <string name="passwords_not_match">пароли не совпадают!</string>
+    <string name="first_tab">Список</string>
+    <string name="second_tab">Карта</string>
+    <string name="on_air">Прямой эфир</string>
 </resources>

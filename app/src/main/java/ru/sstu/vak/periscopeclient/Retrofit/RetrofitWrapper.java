@@ -5,10 +5,20 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
+
+import java.io.File;
 import java.util.ArrayList;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ru.sstu.vak.periscopeclient.R;
@@ -18,6 +28,7 @@ import ru.sstu.vak.periscopeclient.Retrofit.models.MyRequest;
 import ru.sstu.vak.periscopeclient.Retrofit.models.MyResponse;
 import ru.sstu.vak.periscopeclient.Retrofit.models.RoomModel;
 import ru.sstu.vak.periscopeclient.Retrofit.models.UserModel;
+import ru.sstu.vak.periscopeclient.infrastructure.LoadingDialog;
 import ru.sstu.vak.periscopeclient.infrastructure.SharedPrefWrapper;
 import ru.sstu.vak.periscopeclient.infrastructure.TokenUtils;
 
@@ -40,12 +51,9 @@ public class RetrofitWrapper {
     }
 
     public interface Callback<T> {
-
         void onSuccess(T data);
-
         void onFailure(Throwable t);
     }
-
 
     public void joinRoom(@NonNull String streamName, Callback callback) {
         String token = tokenUtils.getToken();
@@ -99,29 +107,6 @@ public class RetrofitWrapper {
 
             @Override
             public void onFailure(Call<MyResponse<Void>> call, Throwable t) {
-                callback.onFailure(new Exception(context.getString(R.string.primary_server_not_responding)));
-            }
-        });
-    }
-
-    public void getObserversCount(@NonNull String streamName, Callback callback) {
-        String token = tokenUtils.getToken();
-        Call<MyResponse<RoomModel>> call = periscopeApi.getRoom(new MyRequest<String>(streamName, token));
-        call.enqueue(new retrofit2.Callback<MyResponse<RoomModel>>() {
-            @Override
-            public void onResponse(Call<MyResponse<RoomModel>> call, Response<MyResponse<RoomModel>> response) {
-                if (response.isSuccessful()) {
-                    MyResponse<RoomModel> resp = response.body();
-                    if (resp.getError() == null) {
-                        callback.onSuccess(resp.getData());
-                    }
-                } else {
-                    callback.onFailure(new Exception(context.getString(R.string.primary_server_returned_error)));
-                }
-            }
-
-            @Override
-            public void onFailure(Call<MyResponse<RoomModel>> call, Throwable t) {
                 callback.onFailure(new Exception(context.getString(R.string.primary_server_not_responding)));
             }
         });
@@ -208,7 +193,7 @@ public class RetrofitWrapper {
         });
     }
 
-    public void refreshRooms(Callback callback) {
+    public void getRooms(Callback callback) {
         String token = tokenUtils.getToken();
         Call<MyResponse<ArrayList<RoomModel>>> call = periscopeApi.getRooms(new MyRequest<Void>(null, token));
         call.enqueue(new retrofit2.Callback<MyResponse<ArrayList<RoomModel>>>() {
@@ -235,7 +220,7 @@ public class RetrofitWrapper {
         });
     }
 
-    public void playStream(final @NonNull String streamName, Callback callback) {
+    public void getRoom(final @NonNull String streamName, Callback callback) {
         String token = tokenUtils.getToken();
         Call<MyResponse<RoomModel>> call = periscopeApi.getRoom(new MyRequest<String>(streamName, token));
         call.enqueue(new retrofit2.Callback<MyResponse<RoomModel>>() {
@@ -304,6 +289,51 @@ public class RetrofitWrapper {
         });
     }
 
+    public void saveAccountChanges(Uri localFileUri, UserModel userModel, Callback callback) {
+        String token = tokenUtils.getToken();
+
+        File file = null;
+        MultipartBody.Part filePart = null;
+        if (localFileUri != null) {
+            file = new File(localFileUri.getPath());
+            RequestBody requestFile = RequestBody.create(MediaType.parse(getMimeType(localFileUri.getPath())), file);
+            filePart = MultipartBody.Part.createFormData("img", file.getName(), requestFile);
+        }
+
+        Call<MyResponse<Void>> call = periscopeApi.saveChanges(filePart, new MyRequest<UserModel>(userModel, token));
+        call.enqueue(new retrofit2.Callback<MyResponse<Void>>() {
+            @Override
+            public void onResponse(Call<MyResponse<Void>> call, Response<MyResponse<Void>> response) {
+                if (response.isSuccessful()) {
+                    MyResponse<Void> resp = response.body();
+                    if (resp.getError() != null && resp.getError().equals(context.getString(R.string.invalid_authToken))) {
+                        callback.onFailure(new Exception(context.getString(R.string.invalid_authToken)));
+                        Intent intent = new Intent(context, ru.sstu.vak.periscopeclient.AuthorizationActivity.class);
+                        ((Activity) context).startActivityForResult(intent, 1);
+                    } else {
+                        callback.onSuccess(resp);
+                    }
+                } else {
+                    callback.onFailure(new Exception(context.getString(R.string.primary_server_returned_error)));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MyResponse<Void>> call, Throwable t) {
+                callback.onFailure(new Exception(context.getString(R.string.primary_server_not_responding)));
+            }
+        });
+    }
+
+
+    private String getMimeType(String url) {
+        String type = null;
+        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+        if (extension != null) {
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        }
+        return type;
+    }
 
     private void showFinishAlertDialog(String message) {
         new AlertDialog.Builder(context)

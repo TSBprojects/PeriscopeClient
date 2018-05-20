@@ -39,6 +39,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ru.sstu.vak.periscopeclient.Retrofit.PeriscopeApi;
+import ru.sstu.vak.periscopeclient.Retrofit.RetrofitWrapper;
 import ru.sstu.vak.periscopeclient.Retrofit.models.MyRequest;
 import ru.sstu.vak.periscopeclient.Retrofit.models.MyResponse;
 import ru.sstu.vak.periscopeclient.Retrofit.models.UserModel;
@@ -50,11 +51,11 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
 
     private String[] fields = new String[4];
 
-
     private Uri localFileUri = null;
 
     private TokenUtils tokenUtils;
     private PeriscopeApi periscopeApi;
+    private RetrofitWrapper retrofitWrapper;
     private SharedPrefWrapper sharedPrefWrapper;
 
     private ProgressBar profile_img_progressbar;
@@ -100,13 +101,6 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
                 Exception error = result.getError();
             }
         }
-//        if (data != null) {
-//            Uri fileUri = data.getData();
-//            if (isValidSize(fileUri)) {
-//                localFileUri = fileUri;
-//                profile_img.setImageURI(localFileUri);
-//            }
-//        }
     }
 
     @Override
@@ -144,9 +138,6 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
                         .setGuidelines(CropImageView.Guidelines.OFF)
                         .setBorderLineColor(getResources().getColor(R.color.colorPrimary))
                         .start(this);
-//                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-//                photoPickerIntent.setType("image/*");
-//                startActivityForResult(photoPickerIntent, 1);
                 break;
             }
         }
@@ -163,15 +154,6 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void saveChanges() {
-        String token = tokenUtils.getToken();
-
-        File file = null;
-        MultipartBody.Part filePart = null;
-        if (localFileUri != null) {
-            file = new File(localFileUri.getPath());
-            RequestBody requestFile = RequestBody.create(MediaType.parse(getMimeType(localFileUri.getPath())), file);
-            filePart = MultipartBody.Part.createFormData("img", file.getName(), requestFile);
-        }
 
         final LoadingDialog dialog = showLoadDialog();
 
@@ -183,45 +165,25 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
                 last_name_field.getText().toString(),
                 aboutme_field.getText().toString());
 
-        Call<MyResponse<Void>> call = periscopeApi.saveChanges(filePart, new MyRequest<UserModel>(userModel, token));
-        call.enqueue(new Callback<MyResponse<Void>>() {
+        retrofitWrapper.saveAccountChanges(localFileUri, userModel, new RetrofitWrapper.Callback<MyResponse<Void>>() {
             @Override
-            public void onResponse(Call<MyResponse<Void>> call, Response<MyResponse<Void>> response) {
-                if (response.isSuccessful()) {
-                    MyResponse<Void> resp = response.body();
-
-                    if (resp.getError() == null) {
-                        localFileUri = null;
-                        finishActivity();
-                    } else if (resp.getError().equals("invalid authToken")) {
-                        Intent intent = new Intent(getBaseContext(), ru.sstu.vak.periscopeclient.AuthorizationActivity.class);
-                        startActivityForResult(intent, 1);
-                    } else {
-                        login_error_field.setVisibility(View.VISIBLE);
-                        login_error_field.setText(resp.getError());
-                    }
-                    dialog.dismiss();
+            public void onSuccess(MyResponse<Void> response) {
+                if (response.getError() == null) {
+                    localFileUri = null;
+                    finishActivity();
                 } else {
-                    showMessage("Сервер вернул ошибку");
-                    dialog.dismiss();
+                    login_error_field.setVisibility(View.VISIBLE);
+                    login_error_field.setText(response.getError());
                 }
+                dialog.dismiss();
             }
 
             @Override
-            public void onFailure(Call<MyResponse<Void>> call, Throwable t) {
-                showMessage("Сервер не отвечает");
+            public void onFailure(Throwable t) {
+                showMessage(t.getMessage());
                 dialog.dismiss();
             }
         });
-    }
-
-    private String getMimeType(String url) {
-        String type = null;
-        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-        if (extension != null) {
-            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-        }
-        return type;
     }
 
     private boolean isValidSize(Uri fileUri) {
@@ -304,12 +266,13 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
         profile_img = (ImageView) findViewById(R.id.profile_img);
         profile_img_progressbar = (ProgressBar) findViewById(R.id.profile_img_progressbar);
         tokenUtils = new TokenUtils(this);
+        retrofitWrapper = new RetrofitWrapper(this);
         sharedPrefWrapper = new SharedPrefWrapper(this);
     }
 
     private void initializeServerApi() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(String.format("http://%1$s:%2$s",R.string.server_domain_name,R.string.servers_port))
+                .baseUrl(String.format("http://%1$s:%2$s", getString(R.string.server_domain_name), getString(R.string.servers_port)))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         periscopeApi = retrofit.create(PeriscopeApi.class);

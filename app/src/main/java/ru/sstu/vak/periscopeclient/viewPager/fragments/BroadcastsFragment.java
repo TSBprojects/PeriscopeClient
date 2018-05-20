@@ -26,17 +26,12 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ru.sstu.vak.periscopeclient.MainActivity;
 import ru.sstu.vak.periscopeclient.R;
 import ru.sstu.vak.periscopeclient.Retrofit.PeriscopeApi;
 import ru.sstu.vak.periscopeclient.Retrofit.RetrofitWrapper;
-import ru.sstu.vak.periscopeclient.Retrofit.models.MyRequest;
-import ru.sstu.vak.periscopeclient.Retrofit.models.MyResponse;
 import ru.sstu.vak.periscopeclient.Retrofit.models.RoomModel;
 import ru.sstu.vak.periscopeclient.infrastructure.TokenUtils;
 import ru.sstu.vak.periscopeclient.liveVideoPlayer.LivePlayer;
@@ -133,7 +128,7 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
     }
 
     private void refreshRooms(final boolean swipe) {
-        retrofitWrapper.refreshRooms(new RetrofitWrapper.Callback< ArrayList<RoomModel>>() {
+        retrofitWrapper.getRooms(new RetrofitWrapper.Callback< ArrayList<RoomModel>>() {
             @Override
             public void onSuccess(ArrayList<RoomModel> rooms) {
                 swipe_refresh.setRefreshing(false);
@@ -159,14 +154,14 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
     }
 
     private void playStream(final String streamName) {
-        retrofitWrapper.playStream(streamName, new RetrofitWrapper.Callback<RoomModel>() {
+        retrofitWrapper.getRoom(streamName, new RetrofitWrapper.Callback<RoomModel>() {
             @Override
             public void onSuccess(RoomModel room) {
                 swipe_refresh.setRefreshing(false);
 
                 if (room == null) {
                     new AlertDialog.Builder(getContext())
-                            .setMessage("Эта трансляция уже закончилась")
+                            .setMessage(getString(R.string.user_finished_broadcasting))
                             .setPositiveButton(android.R.string.yes, null).show();
                     stopTimer();
                     startTimer(0);
@@ -321,7 +316,7 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         1
                 );
-        newTextView.setText("Прямой эфир");
+        newTextView.setText(getString(R.string.on_air));
         newTextView.setTextSize(12);
         newTextView.setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
         newTextView.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.record_lable));
@@ -428,7 +423,7 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
 
     private void initializeServerApi() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://anton-var.ddns.net:8080")
+                .baseUrl(String.format("http://%1$s:%2$s", getString(R.string.server_domain_name), getString(R.string.servers_port)))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         periscopeApi = retrofit.create(PeriscopeApi.class);

@@ -59,6 +59,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import ru.sstu.vak.periscopeclient.MainActivity;
 import ru.sstu.vak.periscopeclient.R;
 import ru.sstu.vak.periscopeclient.Retrofit.PeriscopeApi;
+import ru.sstu.vak.periscopeclient.Retrofit.RetrofitWrapper;
 import ru.sstu.vak.periscopeclient.Retrofit.models.LocationModel;
 import ru.sstu.vak.periscopeclient.Retrofit.models.MessageModel;
 import ru.sstu.vak.periscopeclient.Retrofit.models.MyRequest;
@@ -81,17 +82,14 @@ import static android.content.Context.LOCATION_SERVICE;
 public class MapFragment extends Fragment implements View.OnClickListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private static final String ARGUMENT_PAGE_NUMBER = "page_number";
-
-    private ArrayList<Marker> markers = new ArrayList<>();
-
-    View currentView;
-
-    private PeriscopeApi periscopeApi;
-    private TokenUtils tokenUtils;
-
     private final String TAG = "MapFragment";
     private final String ANDROID_EMULATOR_LOCALHOST = "anton-var.ddns.net";
     private final String SERVER_PORT = "8080";
+    View currentView;
+    private ArrayList<Marker> markers = new ArrayList<>();
+    private RetrofitWrapper retrofitWrapper;
+    private PeriscopeApi periscopeApi;
+    private TokenUtils tokenUtils;
     private StompClient mStompClient;
     private Gson mGson = new GsonBuilder().create();
 
@@ -198,31 +196,17 @@ public class MapFragment extends Fragment implements View.OnClickListener, OnMap
     }
 
     private void setMarkers() {
-        String token = tokenUtils.getToken();
-        Call<MyResponse<ArrayList<RoomModel>>> call = periscopeApi.getRooms(new MyRequest<Void>(null, token));
-        call.enqueue(new Callback<MyResponse<ArrayList<RoomModel>>>() {
+        retrofitWrapper.getRooms(new RetrofitWrapper.Callback<ArrayList<RoomModel>>() {
             @Override
-            public void onResponse(Call<MyResponse<ArrayList<RoomModel>>> call, Response<MyResponse<ArrayList<RoomModel>>> response) {
-                if (response.isSuccessful()) {
-                    MyResponse<ArrayList<RoomModel>> resp = response.body();
-
-                    if (resp.getError() == null) {
-                        ArrayList<RoomModel> rooms = resp.getData();
-                        for (int i = 0; i < rooms.size(); i++) {
-                            refreshRoomMarker(rooms.get(i).getStreamName(), rooms.get(i).getLocation());
-                        }
-                    } else if (resp.getError().equals("invalid authToken")) {
-                        Intent intent = new Intent(getContext(), ru.sstu.vak.periscopeclient.AuthorizationActivity.class);
-                        startActivityForResult(intent, 1);
-                    }
-                } else {
-                    showMessage("Сервер вернул ошибку");
+            public void onSuccess(ArrayList<RoomModel> rooms) {
+                for (int i = 0; i < rooms.size(); i++) {
+                    refreshRoomMarker(rooms.get(i).getStreamName(), rooms.get(i).getLocation());
                 }
             }
 
             @Override
-            public void onFailure(Call<MyResponse<ArrayList<RoomModel>>> call, Throwable t) {
-                showMessage("Сервер не отвечает");
+            public void onFailure(Throwable t) {
+                showMessage(t.getMessage());
             }
         });
     }
@@ -334,7 +318,7 @@ public class MapFragment extends Fragment implements View.OnClickListener, OnMap
 
 
     private Bitmap getMapMarker(int height, int width, @DrawableRes int vectorDrawableResourceId) {
-        BitmapDrawable bitmapdraw = (BitmapDrawable)  currentView.getResources().getDrawable(vectorDrawableResourceId);
+        BitmapDrawable bitmapdraw = (BitmapDrawable) currentView.getResources().getDrawable(vectorDrawableResourceId);
         Bitmap g = bitmapdraw.getBitmap();
         return Bitmap.createScaledBitmap(g, width, height, false);
     }
@@ -347,7 +331,8 @@ public class MapFragment extends Fragment implements View.OnClickListener, OnMap
         mFusedLocationClient = new FusedLocationProviderClient(getContext());
         locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
         pageNumber = getArguments().getInt(ARGUMENT_PAGE_NUMBER);
-        tokenUtils = new TokenUtils((MainActivity) getActivity());
+        tokenUtils = new TokenUtils(getContext());
+        retrofitWrapper = new RetrofitWrapper(getContext());
     }
 
     private void initializeServerApi() {

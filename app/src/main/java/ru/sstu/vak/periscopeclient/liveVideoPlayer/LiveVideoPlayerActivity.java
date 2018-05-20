@@ -17,6 +17,7 @@ package ru.sstu.vak.periscopeclient.liveVideoPlayer;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -162,8 +163,8 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
     private RetrofitWrapper retrofitWrapper;
 
     private static final String TAG = "LiveVideoPlayerActivity";
-    public static final String ANDROID_EMULATOR_LOCALHOST = "anton-var.ddns.net";
-    public static final String SERVER_PORT = "8080";
+    public String HOST;
+    public String SERVER_PORT;
     private int userColor;
     private int userAlphaColor;
     private StompClient mStompClient;
@@ -197,7 +198,7 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
 
     private void connectStomp() {
         mStompClient = Stomp.over(Stomp.ConnectionProvider.JWS,
-                "ws://" + ANDROID_EMULATOR_LOCALHOST + ":" + SERVER_PORT + "/chat");
+                "ws://" + HOST + ":" + SERVER_PORT + "/chat");
 
         mStompClient.lifecycle()
                 .subscribeOn(Schedulers.io())
@@ -403,7 +404,7 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
     }
 
     private void refreshObserversCount(String streamName) {
-        retrofitWrapper.getObserversCount(streamName, new RetrofitWrapper.Callback<RoomModel>() {
+        retrofitWrapper.getRoom(streamName, new RetrofitWrapper.Callback<RoomModel>() {
             @Override
             public void onSuccess(RoomModel room) {
                 if (room != null) {
@@ -422,7 +423,7 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
 
     private void initializeServerApi() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(String.format("http://%1$s:%2$s",R.string.server_domain_name,R.string.servers_port))
+                .baseUrl(String.format("http://%1$s:%2$s", getString(R.string.server_domain_name), getString(R.string.servers_port)))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         periscopeApi = retrofit.create(PeriscopeApi.class);
@@ -508,48 +509,9 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
         });
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    // Activity lifecycle
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-
-        userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
-        shouldAutoPlay = true;
-        clearResumePosition();
-        mediaDataSourceFactory = buildDataSourceFactory(true);
-        rtmpDataSourceFactory = new RtmpDataSource.RtmpDataSourceFactory();
-        mainHandler = new Handler();
-        if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
-            CookieHandler.setDefault(DEFAULT_COOKIE_MANAGER);
-        }
-
-        setContentView(R.layout.activity_live_video_player);
-
-        joined_label = findViewById(R.id.joined_label);
-        debugRootView = findViewById(R.id.controls_root);
-        debugTextView = findViewById(R.id.debug_text_view);
-        retryButton = findViewById(R.id.retry_button);
-        retryButton.setOnClickListener(this);
-
-        simpleExoPlayerView = findViewById(R.id.player_view);
-        simpleExoPlayerView.setControllerVisibilityListener(this);
-        simpleExoPlayerView.requestFocus();
-
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-        initializeScreenSize();
-        initializeServerApi();
-        initializeImageLoader();
+    private void setActivitiesItems() {
+        HOST = getString(R.string.server_domain_name);
+        SERVER_PORT = getString(R.string.servers_port);
         streamName = getIntent().getStringExtra("streamName");
         retrofitWrapper = new RetrofitWrapper(this);
         tokenUtils = new TokenUtils(this);
@@ -572,15 +534,8 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
         say_something_tv = findViewById(R.id.say_something_tv);
         say_something_tv.setOnClickListener(this);
 
-        //DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder().imageScaleType(ImageScaleType.EXACTLY).build();
-//        String s = sharedPrefWrapper.getString("profileImgPath");
-//        imageLoader.displayImage(s, chat_profile_img);
-
         player_view_scroll_view = findViewById(R.id.player_view_scroll_view);
         disableScrolling(player_view_scroll_view);
-
-
-
 
         if (getResources().getConfiguration().orientation == ORIENTATION_PORTRAIT) {
             LinearLayout.LayoutParams newLinearLayout_params =
@@ -631,18 +586,61 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
         });
 
         chat_profile_img.setColorFilter(userAlphaColor);
-        //chat_profile_img.setImageResource(R.drawable.chat_pic_decor);
-
 
         KeyboardUtil keyboardUtil = new KeyboardUtil(this, findViewById(android.R.id.content));
         keyboardUtil.enable();
 
         messageFactory = new MessageFactory(this, messages_layout, SCREEN_SIZE);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    // Activity lifecycle
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+
+        userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
+        shouldAutoPlay = true;
+        clearResumePosition();
+        mediaDataSourceFactory = buildDataSourceFactory(true);
+        rtmpDataSourceFactory = new RtmpDataSource.RtmpDataSourceFactory();
+        mainHandler = new Handler();
+        if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
+            CookieHandler.setDefault(DEFAULT_COOKIE_MANAGER);
+        }
+
+        setContentView(R.layout.activity_live_video_player);
+
+        joined_label = findViewById(R.id.joined_label);
+        debugRootView = findViewById(R.id.controls_root);
+        debugTextView = findViewById(R.id.debug_text_view);
+        retryButton = findViewById(R.id.retry_button);
+        retryButton.setOnClickListener(this);
+
+        simpleExoPlayerView = findViewById(R.id.player_view);
+        simpleExoPlayerView.setControllerVisibilityListener(this);
+        simpleExoPlayerView.requestFocus();
+
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        initializeScreenSize();
+        setActivitiesItems();
+        initializeServerApi();
+        initializeImageLoader();
+
         play(false);
         joinRoom(streamName);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     }
 
     @Override
@@ -885,7 +883,7 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
             //showControls();
             //showControls();
             new AlertDialog.Builder(this)
-                    .setMessage("Пользователь закончил трансляцию")
+                    .setMessage(getString(R.string.user_finished_broadcasting))
                     .setOnCancelListener(new DialogInterface.OnCancelListener() {
                         @Override
                         public void onCancel(DialogInterface dialogInterface) {
@@ -916,6 +914,7 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
     }
 
     @Override
+    @SuppressLint("StringFormatInvalid")
     public void onPlayerError(ExoPlaybackException e) {
         //videoStartControlLayout.setVisibility(View.VISIBLE);
         String errorString = null;
