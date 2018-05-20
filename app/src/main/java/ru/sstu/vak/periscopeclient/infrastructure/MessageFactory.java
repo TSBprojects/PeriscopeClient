@@ -48,8 +48,6 @@ public class MessageFactory {
         final int topMarginStart = params.topMargin; // your start value
         final int topMarginEnd = convertDpToPixel(5); // your start value
 
-        int s = view.getHeight();
-
         Animation a = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
@@ -161,7 +159,6 @@ public class MessageFactory {
                         .alpha(0).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-
                         messages_layout.removeView(messageLayout);
                     }
                 });

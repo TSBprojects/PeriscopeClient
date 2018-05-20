@@ -2,17 +2,21 @@ package ru.sstu.vak.periscopeclient.infrastructure.RecyclerView;
 
 import android.widget.TextView;
 
+import ru.sstu.vak.periscopeclient.liveVideoPlayer.LivePlayer;
+
 public class BroadcastsModel {
     private String observersCount;
     private String description;
     private String userLogin;
     private String streamName;
+    private LivePlayer streamPreview;
 
-    public BroadcastsModel(String observersCount, String description, String userLogin, String streamName) {
+    public BroadcastsModel(String observersCount, String description, String userLogin, String streamName, LivePlayer streamPreview) {
         this.observersCount = observersCount;
         this.description = description;
         this.userLogin = userLogin;
         this.streamName = streamName;
+        this.streamPreview = streamPreview;
     }
 
     public String getObserversCount() {
@@ -45,5 +49,13 @@ public class BroadcastsModel {
 
     public void setStreamName(String streamName) {
         this.streamName = streamName;
+    }
+
+    public LivePlayer getStreamPreview() {
+        return streamPreview;
+    }
+
+    public void setStreamPreview(LivePlayer streamPreview) {
+        this.streamPreview = streamPreview;
     }
 }

@@ -15,7 +15,9 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.sstu.vak.periscopeclient.R;
 import ru.sstu.vak.periscopeclient.liveVideoPlayer.LivePlayer;
@@ -24,14 +26,71 @@ public class BroadcastsAdapter extends RecyclerView.Adapter<BroadcastsAdapter.Br
 
     private Context context;
     private View.OnClickListener clickListener;
-    private ArrayList<LivePlayer> previewList;
-    public BroadcastsAdapter(Context context, View.OnClickListener clickListener,ArrayList<LivePlayer> previewList) {
+    //private HashMap<BroadcastsModel,LivePlayer> broadcastsList = new HashMap<BroadcastsModel, LivePlayer>();
+    private ArrayList<BroadcastsModel> broadcastsList = new ArrayList<>();
+
+    //private ArrayList<LivePlayer> previewList;
+    public BroadcastsAdapter(Context context, View.OnClickListener clickListener) {
         this.context = context;
         this.clickListener = clickListener;
-        this.previewList = previewList;
     }
 
-    private ArrayList<BroadcastsModel> broadcastsList = new ArrayList<>();
+    public void refreshBroadcasts(ArrayList<BroadcastsModel> newBroadcastsList) {
+        boolean match = false;
+        for (int i = 0; i < newBroadcastsList.size(); i++) {
+            BroadcastsModel newBroadcast = newBroadcastsList.get(i);
+            for (int j = 0; j < broadcastsList.size(); j++) {
+                BroadcastsModel oldBroadcast = broadcastsList.get(j);
+                if (newBroadcast.getStreamName().equals(oldBroadcast.getStreamName())) {
+                    updateItem(j);
+                    match = true;
+                    break;
+                }
+            }
+            if (!match) {
+                addItem(newBroadcast);
+            }
+            match = false;
+        }
+
+        System.out.println();
+
+        for (int i = 0; i < broadcastsList.size(); i++) {
+            BroadcastsModel broadcast = broadcastsList.get(i);
+            if (!isBroadcastExist(broadcast, newBroadcastsList)) {
+                removeItem(i);
+            }
+        }
+    }
+
+
+    private boolean isBroadcastExist(BroadcastsModel broadcast, ArrayList<BroadcastsModel> broadcastsList) {
+        for (int i = 0; i < broadcastsList.size(); i++) {
+            if (broadcastsList.get(i).getStreamName().equals(broadcast.getStreamName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private void updateItem(int position) {
+        BroadcastsModel broadcast = broadcastsList.get(position);
+        LivePlayer streamPreview = broadcast.getStreamPreview();
+        streamPreview.onStop();
+        broadcast.setStreamPreview(new LivePlayer(streamPreview.getSimpleExoPlayerView(), broadcast.getStreamName(), context));
+    }
+
+    private void addItem(BroadcastsModel broadcast) {
+        broadcastsList.add(broadcast);
+        notifyItemInserted(broadcastsList.size() - 1);
+    }
+
+    private void removeItem(int position) {
+        broadcastsList.get(position).getStreamPreview().onStop();
+        broadcastsList.remove(position);
+        notifyItemRemoved(position);
+    }
 
     public void setItems(Collection<BroadcastsModel> broadcasts) {
         broadcastsList.addAll(broadcasts);
@@ -39,6 +98,9 @@ public class BroadcastsAdapter extends RecyclerView.Adapter<BroadcastsAdapter.Br
     }
 
     public void clearItems() {
+        for (int i = 0; i < broadcastsList.size(); i++) {
+            broadcastsList.get(i).getStreamPreview().onStop();
+        }
         broadcastsList.clear();
         notifyDataSetChanged();
     }
@@ -69,16 +131,6 @@ public class BroadcastsAdapter extends RecyclerView.Adapter<BroadcastsAdapter.Br
         private TextView user_login_text_view;
 
 
-        void bind(BroadcastsModel broadcast) {
-            broadcastLayout.setTag(broadcast.getStreamName());
-            broadcastLayout.setOnClickListener(clickListener);
-            stream_preview.setUseController(false);
-            previewList.add(new LivePlayer(stream_preview, broadcast.getStreamName(), context));
-            observers_count_text_view.setText(broadcast.getObserversCount());
-            description_text_view.setText(broadcast.getDescription());
-            user_login_text_view.setText(broadcast.getUserLogin());
-        }
-
         BroadcastsViewHolder(View itemView) {
             super(itemView);
             broadcastLayout = itemView.findViewById(R.id.broadcast);
@@ -86,6 +138,20 @@ public class BroadcastsAdapter extends RecyclerView.Adapter<BroadcastsAdapter.Br
             observers_count_text_view = itemView.findViewById(R.id.observers_count_text_view);
             description_text_view = itemView.findViewById(R.id.description_text_view);
             user_login_text_view = itemView.findViewById(R.id.user_login_text_view);
+        }
+
+        void bind(BroadcastsModel broadcast) {
+            broadcastLayout.setTag(broadcast.getStreamName());
+            broadcastLayout.setOnClickListener(clickListener);
+            stream_preview.setUseController(false);
+            broadcast.setStreamPreview(new LivePlayer(stream_preview, broadcast.getStreamName(), context));
+            observers_count_text_view.setText(broadcast.getObserversCount());
+            if (broadcast.getDescription().equals("")) {
+                description_text_view.setVisibility(View.GONE);
+            } else {
+                description_text_view.setText(broadcast.getDescription());
+            }
+            user_login_text_view.setText(broadcast.getUserLogin());
         }
     }
 }

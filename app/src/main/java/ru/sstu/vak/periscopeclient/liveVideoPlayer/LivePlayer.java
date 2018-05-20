@@ -74,6 +74,9 @@ public class LivePlayer implements ExoPlayer.EventListener, PlaybackControlView.
     private EventLogger eventLogger;
     private SimpleExoPlayerView simpleExoPlayerView;
 
+    public SimpleExoPlayerView getSimpleExoPlayerView() {
+        return simpleExoPlayerView;
+    }
 
     private DataSource.Factory mediaDataSourceFactory;
     private SimpleExoPlayer player;
