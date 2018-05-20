@@ -422,7 +422,7 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
 
     private void initializeServerApi() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://anton-var.ddns.net:8080")
+                .baseUrl(String.format("http://%1$s:%2$s",R.string.server_domain_name,R.string.servers_port))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         periscopeApi = retrofit.create(PeriscopeApi.class);
@@ -499,7 +499,7 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
 
             @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                sharedPrefWrapper.setString("profileImgPath", url);
+                sharedPrefWrapper.setString(getString(R.string.profile_img_path), url);
             }
 
             @Override
@@ -533,13 +533,13 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
 
         setContentView(R.layout.activity_live_video_player);
 
-        joined_label = (CardView) findViewById(R.id.joined_label);
-        debugRootView = (LinearLayout) findViewById(R.id.controls_root);
-        debugTextView = (TextView) findViewById(R.id.debug_text_view);
-        retryButton = (Button) findViewById(R.id.retry_button);
+        joined_label = findViewById(R.id.joined_label);
+        debugRootView = findViewById(R.id.controls_root);
+        debugTextView = findViewById(R.id.debug_text_view);
+        retryButton = findViewById(R.id.retry_button);
         retryButton.setOnClickListener(this);
 
-        simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.player_view);
+        simpleExoPlayerView = findViewById(R.id.player_view);
         simpleExoPlayerView.setControllerVisibilityListener(this);
         simpleExoPlayerView.requestFocus();
 
@@ -555,28 +555,28 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
         tokenUtils = new TokenUtils(this);
         sharedPrefWrapper = new SharedPrefWrapper(this);
 
-        heart_add_layout = (LinearLayout) findViewById(R.id.heart_add_layout);
-        messages_layout = (LinearLayout) findViewById(R.id.messages_layout);
-        chat_scroll_view = (ScrollView) findViewById(R.id.chat_scroll_view);
+        heart_add_layout = findViewById(R.id.heart_add_layout);
+        messages_layout = findViewById(R.id.messages_layout);
+        chat_scroll_view = findViewById(R.id.chat_scroll_view);
         disableScrolling(chat_scroll_view);
-        text_view_layout = (LinearLayout) findViewById(R.id.text_view_layout);
-        edit_text_layout = (LinearLayout) findViewById(R.id.edit_text_layout);
+        text_view_layout = findViewById(R.id.text_view_layout);
+        edit_text_layout = findViewById(R.id.edit_text_layout);
 
-        chat_profile_img = (ImageView) findViewById(R.id.chat_profile_img);
-        chat_edit_text = (EditText) findViewById(R.id.chat_edit_text);
-        hide_chat_edit_text_btn = (ImageView) findViewById(R.id.hide_chat_edit_text_btn);
+        chat_profile_img = findViewById(R.id.chat_profile_img);
+        chat_edit_text = findViewById(R.id.chat_edit_text);
+        hide_chat_edit_text_btn = findViewById(R.id.hide_chat_edit_text_btn);
         hide_chat_edit_text_btn.setOnClickListener(this);
 
-        observers_count_progressbar = (ProgressBar) findViewById(R.id.observers_count_progressbar);
-        observers_count_tv = (TextView) findViewById(R.id.observers_count_tv);
-        say_something_tv = (TextView) findViewById(R.id.say_something_tv);
+        observers_count_progressbar = findViewById(R.id.observers_count_progressbar);
+        observers_count_tv = findViewById(R.id.observers_count_tv);
+        say_something_tv = findViewById(R.id.say_something_tv);
         say_something_tv.setOnClickListener(this);
 
         //DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder().imageScaleType(ImageScaleType.EXACTLY).build();
 //        String s = sharedPrefWrapper.getString("profileImgPath");
 //        imageLoader.displayImage(s, chat_profile_img);
 
-        player_view_scroll_view = (ScrollView) findViewById(R.id.player_view_scroll_view);
+        player_view_scroll_view = findViewById(R.id.player_view_scroll_view);
         disableScrolling(player_view_scroll_view);
 
 
@@ -621,7 +621,7 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
 
         userColor = randomColor();
         setUserAlphaColor(userColor);
-        heartLayout = (HeartLayout) findViewById(R.id.heart_layout);
+        heartLayout = findViewById(R.id.heart_layout);
         heart_add_layout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -672,9 +672,6 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
     @Override
     protected void onResume() {
         super.onResume();
-//        if (isLeave) {
-//            joinRoom(streamName);
-//        }
         play(true);
         refreshObserversCount(streamName);
     }

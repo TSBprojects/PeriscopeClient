@@ -10,9 +10,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.location.Location;
 import android.location.LocationListener;
@@ -25,7 +23,6 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
@@ -37,7 +34,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.LayoutDirection;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -50,16 +46,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.util.Hex;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
@@ -68,7 +57,6 @@ import com.google.gson.GsonBuilder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -78,9 +66,6 @@ import io.antmedia.android.broadcaster.utils.Resolution;
 import io.reactivex.CompletableTransformer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ru.sstu.vak.periscopeclient.R;
@@ -88,11 +73,8 @@ import ru.sstu.vak.periscopeclient.Retrofit.PeriscopeApi;
 import ru.sstu.vak.periscopeclient.Retrofit.RetrofitWrapper;
 import ru.sstu.vak.periscopeclient.Retrofit.models.LocationModel;
 import ru.sstu.vak.periscopeclient.Retrofit.models.MessageModel;
-import ru.sstu.vak.periscopeclient.Retrofit.models.MyRequest;
-import ru.sstu.vak.periscopeclient.Retrofit.models.MyResponse;
 import ru.sstu.vak.periscopeclient.Retrofit.models.RoomModel;
 import ru.sstu.vak.periscopeclient.Retrofit.models.UserConnectedModel;
-import ru.sstu.vak.periscopeclient.Retrofit.models.UserModel;
 import ru.sstu.vak.periscopeclient.infrastructure.MessageFactory;
 import ru.sstu.vak.periscopeclient.infrastructure.StopStreamDialog;
 import ru.sstu.vak.periscopeclient.infrastructure.TokenUtils;
@@ -137,8 +119,8 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
     private HeartLayout heartLayout;
 
     private final String TAG = "RecordActivity";
-    private final String ANDROID_EMULATOR_LOCALHOST = "anton-var.ddns.net";
-    private final String SERVER_PORT = "8080";
+    private final String HOST = getString(R.string.server_domain_name);
+    private final String SERVER_PORT = getString(R.string.servers_port);
     private String streamName;
     private StompClient mStompClient;
     private Gson mGson = new GsonBuilder().create();
@@ -204,9 +186,9 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
     private AlertDialog turnOnGPSDialog() {
         try {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Пожалуйста, включите позиционирование по GPS, WiFi и мобильным сетям в системных настройках, чтобы другие пользователи могли видеть откуда вы ведёте трансляцию.");
-            builder.setNegativeButton("нет", null);
-            builder.setPositiveButton("да",
+            builder.setMessage(getString(R.string.turn_on_gps_message));
+            builder.setNegativeButton(R.string.no, null);
+            builder.setPositiveButton(R.string.yes,
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
@@ -235,7 +217,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
 
     private void connectStomp() {
         mStompClient = Stomp.over(Stomp.ConnectionProvider.JWS,
-                "ws://" + ANDROID_EMULATOR_LOCALHOST + ":" + SERVER_PORT + "/chat");
+                "ws://" + HOST + ":" + SERVER_PORT + "/chat");
 
         mStompClient.lifecycle()
                 .subscribeOn(Schedulers.io())
@@ -339,7 +321,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
 
     private void pressStartRecordButton() {
         mBroadcastControlButton.setEnabled(false);
-        mBroadcastControlButton.setText("Инициализация потока...");
+        mBroadcastControlButton.setText(R.string.thread_initialization);
         mBroadcastControlButton.setBackgroundColor(getResources().getColor(R.color.stream_initialization));
     }
 
@@ -376,7 +358,6 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
 
 
         mBroadcastControlButton.setText(R.string.start_broadcasting);
-        //mBroadcastControlButton.setVisibility(View.VISIBLE);
         mBroadcastControlButton.setBackgroundColor(getResources().getColor(R.color.start_record));
         CountDownTimer timer = new CountDownTimer(2000, 2000) {
             public void onTick(long millisUntilFinished) {
@@ -456,7 +437,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
             FragmentManager fm = getSupportFragmentManager();
             StopStreamDialog dialog = new StopStreamDialog();
             dialog.setCancelable(false);
-            dialog.show(fm, "tag");
+            dialog.show(fm, TAG);
             return dialog;
         } else {
             return null;
@@ -470,7 +451,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
 
     private void initializeServerApi() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://anton-var.ddns.net:8080")
+                .baseUrl(String.format("http://%1$s:%2$s",HOST,SERVER_PORT))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         periscopeApi = retrofit.create(PeriscopeApi.class);
@@ -478,9 +459,9 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
 
     private void stopStreamDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Вы уверены, что хотите прервать трансляцию?");
-        builder.setNegativeButton("Отмена", null);
-        builder.setPositiveButton("Да",
+        builder.setMessage(R.string.stop_stream_dialog_message);
+        builder.setNegativeButton(R.string.cancel, null);
+        builder.setPositiveButton(R.string.yes,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         finish = false;

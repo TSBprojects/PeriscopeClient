@@ -1,10 +1,6 @@
 package ru.sstu.vak.periscopeclient;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.content.Intent;
-import android.graphics.drawable.Animatable2;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -16,13 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.net.InetAddress;
@@ -37,40 +28,27 @@ import ru.sstu.vak.periscopeclient.infrastructure.SharedPrefWrapper;
 import ru.sstu.vak.periscopeclient.infrastructure.TokenUtils;
 import ru.sstu.vak.periscopeclient.liveVideoBroadcaster.RecordActivity;
 import ru.sstu.vak.periscopeclient.viewPager.MyFragmentPagerAdapter;
-import tyrantgit.widget.HeartLayout;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static String RTMP_BASE_URL;
-
-    private PeriscopeApi periscopeApi;
-
-    private MainActivity instance;
-
     boolean darkTheme;
-
+    boolean exit = false;
+    private PeriscopeApi periscopeApi;
+    private MainActivity instance;
     private ViewPager pager;
     private MyFragmentPagerAdapter pagerAdapter;
-
     private Toolbar tool_bar;
     private TabLayout tab_bar;
     private FloatingActionButton record_activity_fab;
-
     private TokenUtils tokenUtils;
     private SharedPrefWrapper sharedPrefWrapper;
 
-    boolean exit = false;
 
-    public MyFragmentPagerAdapter getPagerAdapter() {
-        return pagerAdapter;
-    }
-
-
-    public void test(View view)
-    {
-        Intent intent = new Intent(this, Test.class);
-        startActivity(intent);
-    }
+//    public void test(View view) {
+//        Intent intent = new Intent(this, Test.class);
+//        startActivity(intent);
+//    }
 
 
     @Override
@@ -231,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void run() {
                 try {
-                    InetAddress ad = InetAddress.getByName("anton-var.ddns.net");
+                    InetAddress ad = InetAddress.getByName(getString(R.string.server_domain_name));
                     RTMP_BASE_URL = String.format("rtmp://%1$s:1935/vod/", getIP(ad.toString()));
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
@@ -270,9 +248,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void initializeTabBar() {
         tab_bar.setupWithViewPager(pager);
-//        tab_bar.getTabAt(0).setIcon(R.drawable.ic_live_tv_24dp);
-//        tab_bar.getTabAt(0).setText("");
-//        tab_bar.getTabAt(0).setContentDescription("Главная");
         tab_bar.getTabAt(0).setIcon(R.drawable.ic_format_list_bulleted_24dp);
         tab_bar.getTabAt(0).setText("");
         tab_bar.getTabAt(0).setContentDescription("Список");
@@ -282,14 +257,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tab_bar.setBackground(getDrawable(R.drawable.ripple));
     }
 
-//    private void initializeScreenSize() {
-//        1 = new Point();
-//        getWindowManager().getDefaultDisplay().getSize(SCREEN_SIZE);
-//    }
-
     private void initializeServerApi() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://anton-var.ddns.net:8080")
+                .baseUrl(String.format("http://%1$s:%2$s", R.string.server_domain_name, R.string.servers_port))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         periscopeApi = retrofit.create(PeriscopeApi.class);

@@ -17,51 +17,52 @@
     <string name="microphone_permission_is_required">Microphone permission is required to run this app</string>
     <string name="permission">Permission</string>
     <string name="app_doesnot_work_without_permissions">App does not work without permissions. Please give Camera and Record Audio permission on app settings</string>
-
-    <string name="profile_image_path">profileImgPath</string>
     <string name="updateDate">updateDate</string>
-
     <string name="video">Video</string>
-
     <string name="audio">Audio</string>
-
     <string name="text">Text</string>
-
     <string name="retry">Retry</string>
-
     <string name="selection_disabled">Disabled</string>
-
     <string name="selection_default">Default</string>
-
     <string name="selection_default_none">Default (none)</string>
-
     <string name="unexpected_intent_action">Unexpected intent action: <xliff:g id="action">%1$s</xliff:g></string>
-
     <string name="enable_random_adaptation">Enable random adaptation</string>
-
     <string name="error_drm_not_supported">Protected content not supported on API levels below 18</string>
-
     <string name="error_drm_unsupported_scheme">This device does not support the required DRM scheme</string>
-
     <string name="error_drm_unknown">An unknown DRM error occurred</string>
-
     <string name="error_no_decoder">This device does not provide a decoder for <xliff:g id="mime_type">%1$s</xliff:g></string>
-
     <string name="error_no_secure_decoder">This device does not provide a secure decoder for <xliff:g id="mime_type">%1$s</xliff:g></string>
-
     <string name="error_querying_decoders">Unable to query device decoders</string>
-
     <string name="error_instantiating_decoder">Unable to instantiate decoder <xliff:g id="decoder_name">%1$s</xliff:g></string>
-
     <string name="error_unsupported_video">Media includes video tracks, but none are playable by this device</string>
-
     <string name="error_unsupported_audio">Media includes audio tracks, but none are playable by this device</string>
-
     <string name="storage_permission_denied">Permission to access storage was denied</string>
-
     <string name="sample_list_load_error">One or more sample lists failed to load</string>
     <string name="stream_not_started">Медиа сервер не отвечает</string>
     <string name="title_activity_account">AccountActivity</string>
     <string name="title_activity_record">RecordActivity</string>
     <string name="title_activity_maps">Map</string>
+    <string name="server_domain_name">anton-var.ddns.net</string>
+    <string name="servers_port">8080</string>
+    <string name="turn_on_gps_message">Пожалуйста, включите позиционирование по GPS, WiFi и мобильным сетям в системных настройках, чтобы другие пользователи могли видеть откуда вы ведёте трансляцию.</string>
+    <string name="thread_initialization">Инициализация потока…</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="cancel">Отмена</string>
+    <string name="stop_stream_dialog_message">Вы уверены, что хотите прервать трансляцию?</string>
+    <string name="user_finished_broadcasting">Пользователь закончил трансляцию</string>
+    <string name="primary_server_returned_error">Основной сервер вернул ошибку</string>
+    <string name="primary_server_not_responding">Основной сервер не отвечает</string>
+    <string name="invalid_authToken">Invalid authToken</string>
+    <string name="profile_img_path">profileImgPath</string>
+    <string name="first_name">firstName</string>
+    <string name="last_name">lastName</string>
+    <string name="login">login</string>
+    <string name="about_me">aboutMe</string>
+    <string name="update_date">updateDate</string>
+    <string name="token_name">token</string>
+    <string name="enter_login">введите логин!</string>
+    <string name="enter_password">введите пароль!</string>
+    <string name="confirm_password">подтвердите пароль!</string>
+    <string name="passwords_not_match">пароли не совпадают!</string>
 </resources>

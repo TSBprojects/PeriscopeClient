@@ -145,33 +145,6 @@ public class AuthorizationActivity extends AppCompatActivity implements View.OnC
         }
     }
 
-//    class MyTask extends AsyncTask<String, Integer, Void> {
-//
-//        @Override
-//        protected void onPreExecute() {
-//            super.onPreExecute();
-//        }
-//
-//        @Override
-//        protected Void doInBackground(String... urls) {
-//            try {
-//                TimeUnit.SECONDS.sleep(1);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            return null;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Void result) {
-//            super.onPostExecute(result);
-//
-//            Intent intent = new Intent();
-//            intent.putExtra("exit", false);
-//            setResult(RESULT_OK, intent);
-//            finish();
-//        }
-//    }
 
     private void registerUser(String login, String password) {
         final LoadingDialog dialog = showLoadDialog();
@@ -238,25 +211,25 @@ public class AuthorizationActivity extends AppCompatActivity implements View.OnC
         boolean repeatPass = true;
         if (reg_login_field.getText().toString().equals("")) {
             reg_login_error_field.setVisibility(View.VISIBLE);
-            reg_login_error_field.setText("введите логин!");
+            reg_login_error_field.setText(R.string.enter_login);
             login = false;
         } else {
             reg_login_error_field.setVisibility(View.INVISIBLE);
         }
         if (reg_pass_field.getText().toString().equals("")) {
             reg_pass_error_field.setVisibility(View.VISIBLE);
-            reg_pass_error_field.setText("введите пароль!");
+            reg_pass_error_field.setText(R.string.enter_password);
             pass = false;
         } else {
             reg_pass_error_field.setVisibility(View.INVISIBLE);
         }
         if (reg_repeatpass_field.getText().toString().equals("")) {
             reg_repeatpass_error_field.setVisibility(View.VISIBLE);
-            reg_repeatpass_error_field.setText("подтвердите пароль!");
+            reg_repeatpass_error_field.setText(R.string.confirm_password);
             repeatPass = false;
         } else if (!reg_pass_field.getText().toString().equals(reg_repeatpass_field.getText().toString())) {
             reg_repeatpass_error_field.setVisibility(View.VISIBLE);
-            reg_repeatpass_error_field.setText("пароли не совпадают!");
+            reg_repeatpass_error_field.setText(R.string.passwords_not_match);
             repeatPass = false;
         } else {
             reg_repeatpass_error_field.setVisibility(View.INVISIBLE);
@@ -269,7 +242,7 @@ public class AuthorizationActivity extends AppCompatActivity implements View.OnC
         boolean pass = true;
         if (login_login_field.getText().toString().equals("")) {
             login_login_error_field.setVisibility(View.VISIBLE);
-            login_login_error_field.setText("введите логин!");
+            login_login_error_field.setText(R.string.enter_login);
             login_global_error.setText("");
             login = false;
         } else {
@@ -277,7 +250,7 @@ public class AuthorizationActivity extends AppCompatActivity implements View.OnC
         }
         if (login_pass_field.getText().toString().equals("")) {
             login_pass_error_field.setVisibility(View.VISIBLE);
-            login_pass_error_field.setText("введите пароль!");
+            login_pass_error_field.setText(R.string.enter_password);
             login_global_error.setText("");
             pass = false;
         } else {
@@ -452,7 +425,7 @@ public class AuthorizationActivity extends AppCompatActivity implements View.OnC
 
     private void initializeServerApi() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://anton-var.ddns.net:8080")
+                .baseUrl(String.format("http://%1$s:%2$s",R.string.server_domain_name,R.string.servers_port))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         periscopeApi = retrofit.create(PeriscopeApi.class);

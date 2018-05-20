@@ -114,108 +114,6 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
     }
 
 
-//    private void setUserInfo() {
-//
-//
-//        //imageLoader.displayImage("http://anton-var.ddns.net:8080/public/57.jpg", profile_img);
-//
-//
-//        aboutme_field.setVisibility(View.INVISIBLE);
-//        aboutme_progressbar.setVisibility(View.VISIBLE);
-//
-//        String token = tokenUtils.getToken();
-//
-//        Call<MyResponse<UserModel>> call = periscopeApi.getUser(new MyRequest<Void>(null, token));
-//        call.enqueue(new Callback<MyResponse<UserModel>>() {
-//            @Override
-//            public void onResponse(Call<MyResponse<UserModel>> call, Response<MyResponse<UserModel>> response) {
-//                if (response.isSuccessful()) {
-//                    MyResponse<UserModel> resp = response.body();
-//
-//                    if (resp.getError() == null) {
-//                        aboutme_field.setVisibility(View.VISIBLE);
-//                        aboutme_progressbar.setVisibility(View.INVISIBLE);
-//
-//                        UserModel user = resp.getData();
-//                        currentUser = user;
-//                        setProfileImg(user.getProfileImagePath());
-//
-//                        String userFName = user.getFirstName();
-//                        String userSecName = user.getLastName();
-//                        String userAboutMe = user.getAboutMe();
-//
-//                        if (userFName.equals("") && userSecName.equals("")) {
-//                            userFName = "Без";
-//                            userSecName = "имени";
-//                        }
-//                        if (userAboutMe.equals("")) {
-//                            userAboutMe = "Напишите пару строк о себе";
-//                        }
-//
-//                        name_field.setText(String.format("%1s %2s", userFName, userSecName));
-//                        login_field.setText(user.getLogin());
-//                        aboutme_field.setText(userAboutMe);
-//                    } else if (resp.getError().equals("invalid authToken")) {
-//                        Intent intent = new Intent(getBaseContext(), ru.sstu.vak.periscopeclient.AuthorizationActivity.class);
-//                        startActivityForResult(intent, 1);
-//                    }
-//                } else {
-//                    showMessage("Сервер вернул ошибку");
-//                    aboutme_field.setVisibility(View.VISIBLE);
-//                    aboutme_progressbar.setVisibility(View.INVISIBLE);
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<MyResponse<UserModel>> call, Throwable t) {
-//                showMessage("Сервер не отвечает");
-//            }
-//        });
-//    }
-
-//    private void uploadImage(final Uri fileUri) {
-//        String token = tokenUtils.getToken();
-//
-//        File file = new File(getRealPathFromURI(fileUri));
-//
-//        if (file.length() <= 2097152) {
-//            RequestBody requestFile = RequestBody.create(MediaType.parse(getContentResolver().getType(fileUri)), file);
-//            MultipartBody.Part filePart = MultipartBody.Part.createFormData("img", file.getName(), requestFile);
-//
-//            Call<MyResponse<String>> call = periscopeApi.uploadImage(filePart, token);
-//            call.enqueue(new Callback<MyResponse<String>>() {
-//                @Override
-//                public void onResponse(Call<MyResponse<String>> call, Response<MyResponse<String>> response) {
-//                    if (response.isSuccessful()) {
-//                        MyResponse<String> resp = response.body();
-//
-//                        if (resp.getError() == null) {
-//                            profile_img.setBackground(null);
-//                            profile_img.setImageBitmap(null);
-//                            profile_img.setImageURI(fileUri);
-//                            resetImageLoader();
-//                            initializeImageLoader();
-//                            sharedPrefWrapper.setString(getString(R.string.profile_image_path), resp.getData());
-//                        } else if (resp.getError().equals("invalid authToken")) {
-//                            Intent intent = new Intent(getBaseContext(), ru.sstu.vak.periscopeclient.AuthorizationActivity.class);
-//                            startActivityForResult(intent, 1);
-//                        }
-//                    } else {
-//                        showMessage("Сервер вернул ошибку");
-//                    }
-//                }
-//
-//                @Override
-//                public void onFailure(Call<MyResponse<String>> call, Throwable t) {
-//                    showMessage("Сервер не отвечает");
-//                }
-//            });
-//        } else {
-//            showMessage("Размер файла не должен превышать 2 Мб");
-//        }
-//    }
-
-
     private void checkForUpdates() {
         setDataFromCache();
         retrofitWrapper.checkForUpdates(new RetrofitWrapper.Callback<UserModel>() {
@@ -287,23 +185,23 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void setDataFromCache() {
-        if (sharedPrefWrapper.getString("firstName") == null) {
+        if (sharedPrefWrapper.getString(getString(R.string.first_name)) == null) {
             setDefaultData();
         } else {
-            String firstName = sharedPrefWrapper.getString("firstName");
-            String lastName = sharedPrefWrapper.getString("lastName");
+            String firstName = sharedPrefWrapper.getString(getString(R.string.first_name));
+            String lastName = sharedPrefWrapper.getString(getString(R.string.last_name));
             if (firstName.equals("") && lastName.equals("")) {
                 firstName = "Ваше имя";
                 lastName = "и фамилия";
             }
-            String aboutMe = sharedPrefWrapper.getString("aboutMe");
+            String aboutMe = sharedPrefWrapper.getString(getString(R.string.about_me));
             if (aboutMe.equals("")) {
                 aboutMe = "Напишите пару строк о себе";
             }
 
-            imageLoader.displayImage(sharedPrefWrapper.getString("profileImgPath"), profile_img);
+            imageLoader.displayImage(sharedPrefWrapper.getString(getString(R.string.profile_img_path)), profile_img);
             name_field.setText(String.format("%1s %2s", firstName, lastName));
-            login_field.setText("@" + sharedPrefWrapper.getString("login"));
+            login_field.setText(String.format("@%s",sharedPrefWrapper.getString(getString(R.string.login))));
             aboutme_field.setText(aboutMe);
         }
     }
@@ -316,12 +214,12 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void setCache(UserModel user) {
-        sharedPrefWrapper.setString("profileImgPath", user.getProfileImagePath());
-        sharedPrefWrapper.setString("firstName", user.getFirstName());
-        sharedPrefWrapper.setString("lastName", user.getLastName());
-        sharedPrefWrapper.setString("login", user.getLogin());
-        sharedPrefWrapper.setString("aboutMe", user.getAboutMe());
-        sharedPrefWrapper.setString("updateDate", user.getUpdateDate().toString());
+        sharedPrefWrapper.setString(getString(R.string.profile_img_path), user.getProfileImagePath());
+        sharedPrefWrapper.setString(getString(R.string.first_name), user.getFirstName());
+        sharedPrefWrapper.setString(getString(R.string.last_name), user.getLastName());
+        sharedPrefWrapper.setString(getString(R.string.login), user.getLogin());
+        sharedPrefWrapper.setString(getString(R.string.about_me), user.getAboutMe());
+        sharedPrefWrapper.setString(getString(R.string.update_date), user.getUpdateDate().toString());
     }
 
 
@@ -382,7 +280,7 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
 
     private void initializeServerApi() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://anton-var.ddns.net:8080")
+                .baseUrl(String.format("http://%1$s:%2$s",R.string.server_domain_name,R.string.servers_port))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         periscopeApi = retrofit.create(PeriscopeApi.class);

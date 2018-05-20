@@ -2,11 +2,8 @@ package ru.sstu.vak.periscopeclient.infrastructure;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Point;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.CountDownTimer;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
@@ -128,7 +125,7 @@ public class MessageFactory {
         newTextView.setBackgroundColor(color);
         newTextView.setTextColor(ContextCompat.getColor(context, android.R.color.white));
         newTextView.setTextSize(12);
-        newTextView.setText("@" + userLogin);
+        newTextView.setText(String.format("@%s",userLogin));
         newTextView.setLayoutParams(newTextView_params);
         return newTextView;
     }
@@ -189,7 +186,6 @@ public class MessageFactory {
     }
 
     private LinearLayout createMainLayout() {
-        //int PXmarginBottom = -convertDpToPixel(40);
         LinearLayout newLinearLayout = new LinearLayout(context);
         LinearLayout.LayoutParams newLinearLayout_params =
                 new LinearLayout.LayoutParams(
@@ -197,7 +193,6 @@ public class MessageFactory {
                         LinearLayout.LayoutParams.MATCH_PARENT
                 );
         newLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
-        //newLinearLayout_params.setMargins(0, 0, 0, PXmarginBottom);
         newLinearLayout.setLayoutParams(newLinearLayout_params);
         return newLinearLayout;
     }

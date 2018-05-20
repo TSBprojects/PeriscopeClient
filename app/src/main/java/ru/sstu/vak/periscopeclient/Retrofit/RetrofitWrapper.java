@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.converter.gson.GsonConverterFactory;
+import ru.sstu.vak.periscopeclient.R;
 import ru.sstu.vak.periscopeclient.Retrofit.models.LocationModel;
 import ru.sstu.vak.periscopeclient.Retrofit.models.LoginModel;
 import ru.sstu.vak.periscopeclient.Retrofit.models.MyRequest;
@@ -59,19 +60,19 @@ public class RetrofitWrapper {
                     MyResponse<RoomModel> resp = response.body();
                     if (resp.getError() == null) {
                         if (resp.getData().getObservers() == null) {
-                            showFinishAlertDialog("Пользователь закончил трансляцию");
+                            showFinishAlertDialog(context.getString(R.string.user_finished_broadcasting));
                         } else {
                             callback.onSuccess(resp.getData());
                         }
                     }
                 } else {
-                    callback.onFailure(new Exception("Основной сервер вернул ошибку"));
+                    callback.onFailure(new Exception(context.getString(R.string.primary_server_returned_error)));
                 }
             }
 
             @Override
             public void onFailure(Call<MyResponse<RoomModel>> call, Throwable t) {
-                callback.onFailure(new Exception("Основной сервер не отвечает"));
+                callback.onFailure(new Exception(context.getString(R.string.primary_server_not_responding)));
             }
         });
     }
@@ -92,13 +93,13 @@ public class RetrofitWrapper {
                         callback.onSuccess(resp.getData());
                     }
                 } else {
-                    callback.onFailure(new Exception("Основной сервер вернул ошибку"));
+                    callback.onFailure(new Exception(context.getString(R.string.primary_server_returned_error)));
                 }
             }
 
             @Override
             public void onFailure(Call<MyResponse<Void>> call, Throwable t) {
-                callback.onFailure(new Exception("Основной сервер не отвечает"));
+                callback.onFailure(new Exception(context.getString(R.string.primary_server_not_responding)));
             }
         });
     }
@@ -115,13 +116,13 @@ public class RetrofitWrapper {
                         callback.onSuccess(resp.getData());
                     }
                 } else {
-                    callback.onFailure(new Exception("Основной сервер вернул ошибку"));
+                    callback.onFailure(new Exception(context.getString(R.string.primary_server_returned_error)));
                 }
             }
 
             @Override
             public void onFailure(Call<MyResponse<RoomModel>> call, Throwable t) {
-                callback.onFailure(new Exception("Основной сервер не отвечает"));
+                callback.onFailure(new Exception(context.getString(R.string.primary_server_not_responding)));
             }
         });
     }
@@ -141,13 +142,13 @@ public class RetrofitWrapper {
                         callback.onSuccess(resp.getData());
                     }
                 } else {
-                    callback.onFailure(new Exception("Основной сервер вернул ошибку"));
+                    callback.onFailure(new Exception(context.getString(R.string.primary_server_returned_error)));
                 }
             }
 
             @Override
             public void onFailure(Call<MyResponse<Void>> call, Throwable t) {
-                callback.onFailure(new Exception("Основной сервер не отвечает"));
+                callback.onFailure(new Exception(context.getString(R.string.primary_server_not_responding)));
             }
         });
     }
@@ -167,13 +168,13 @@ public class RetrofitWrapper {
                         callback.onSuccess(resp.getData());
                     }
                 } else {
-                    callback.onFailure(new Exception("Основной сервер вернул ошибку"));
+                    callback.onFailure(new Exception(context.getString(R.string.primary_server_returned_error)));
                 }
             }
 
             @Override
             public void onFailure(Call<MyResponse<Void>> call, Throwable t) {
-                callback.onFailure(new Exception("Основной сервер не отвечает"));
+                callback.onFailure(new Exception(context.getString(R.string.primary_server_not_responding)));
             }
         });
     }
@@ -190,19 +191,19 @@ public class RetrofitWrapper {
                     MyResponse<UserModel> resp = response.body();
                     if (resp.getError() == null) {
                         callback.onSuccess(resp.getData());
-                    } else if (resp.getError().equals("invalid authToken")) {
-                        callback.onFailure(new Exception("invalid authToken"));
+                    } else if (resp.getError().equals(context.getString(R.string.invalid_authToken))) {
+                        callback.onFailure(new Exception(context.getString(R.string.invalid_authToken)));
                         Intent intent = new Intent(context, ru.sstu.vak.periscopeclient.AuthorizationActivity.class);
                         ((Activity) context).startActivityForResult(intent, 1);
                     }
                 } else {
-                    callback.onFailure(new Exception("Основной сервер вернул ошибку"));
+                    callback.onFailure(new Exception(context.getString(R.string.primary_server_returned_error)));
                 }
             }
 
             @Override
             public void onFailure(Call<MyResponse<UserModel>> call, Throwable t) {
-                callback.onFailure(new Exception("Основной сервер не отвечает"));
+                callback.onFailure(new Exception(context.getString(R.string.primary_server_not_responding)));
             }
         });
     }
@@ -217,19 +218,19 @@ public class RetrofitWrapper {
                     MyResponse<ArrayList<RoomModel>> resp = response.body();
                     if (resp.getError() == null) {
                         callback.onSuccess(resp.getData());
-                    } else if (resp.getError().equals("invalid authToken")) {
-                        callback.onFailure(new Exception("invalid authToken"));
+                    } else if (resp.getError().equals(context.getString(R.string.invalid_authToken))) {
+                        callback.onFailure(new Exception(context.getString(R.string.invalid_authToken)));
                         Intent intent = new Intent(context, ru.sstu.vak.periscopeclient.AuthorizationActivity.class);
                         ((Activity) context).startActivityForResult(intent, 1);
                     }
                 } else {
-                    callback.onFailure(new Exception("Основной сервер вернул ошибку"));
+                    callback.onFailure(new Exception(context.getString(R.string.primary_server_returned_error)));
                 }
             }
 
             @Override
             public void onFailure(Call<MyResponse<ArrayList<RoomModel>>> call, Throwable t) {
-                callback.onFailure(new Exception("Основной сервер не отвечает"));
+                callback.onFailure(new Exception(context.getString(R.string.primary_server_not_responding)));
             }
         });
     }
@@ -244,19 +245,19 @@ public class RetrofitWrapper {
                     MyResponse<RoomModel> resp = response.body();
                     if (resp.getError() == null) {
                         callback.onSuccess(resp.getData());
-                    } else if (resp.getError().equals("invalid authToken")) {
-                        callback.onFailure(new Exception("invalid authToken"));
+                    } else if (resp.getError().equals(context.getString(R.string.invalid_authToken))) {
+                        callback.onFailure(new Exception(context.getString(R.string.invalid_authToken)));
                         Intent intent = new Intent(context, ru.sstu.vak.periscopeclient.AuthorizationActivity.class);
                         ((Activity) context).startActivityForResult(intent, 1);
                     }
                 } else {
-                    callback.onFailure(new Exception("Основной сервер вернул ошибку"));
+                    callback.onFailure(new Exception(context.getString(R.string.primary_server_returned_error)));
                 }
             }
 
             @Override
             public void onFailure(Call<MyResponse<RoomModel>> call, Throwable t) {
-                callback.onFailure(new Exception("Основной сервер не отвечает"));
+                callback.onFailure(new Exception(context.getString(R.string.primary_server_not_responding)));
             }
         });
     }
@@ -271,13 +272,13 @@ public class RetrofitWrapper {
                 if (response.isSuccessful()) {
                     callback.onSuccess(response.body());
                 } else {
-                    callback.onFailure(new Exception("Основной сервер вернул ошибку"));
+                    callback.onFailure(new Exception(context.getString(R.string.primary_server_returned_error)));
                 }
             }
 
             @Override
             public void onFailure(Call<MyResponse<String>> call, Throwable t) {
-                callback.onFailure(new Exception("Основной сервер не отвечает"));
+                callback.onFailure(new Exception(context.getString(R.string.primary_server_not_responding)));
             }
         });
     }
@@ -292,13 +293,13 @@ public class RetrofitWrapper {
                 if (response.isSuccessful()) {
                     callback.onSuccess(response.body());
                 } else {
-                    callback.onFailure(new Exception("Основной сервер вернул ошибку"));
+                    callback.onFailure(new Exception(context.getString(R.string.primary_server_returned_error)));
                 }
             }
 
             @Override
             public void onFailure(Call<MyResponse<String>> call, Throwable t) {
-                callback.onFailure(new Exception("Основной сервер не отвечает"));
+                callback.onFailure(new Exception(context.getString(R.string.primary_server_not_responding)));
             }
         });
     }

@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
-import android.widget.TextView;
 
 import ru.sstu.vak.periscopeclient.R;
 
@@ -14,9 +13,7 @@ import ru.sstu.vak.periscopeclient.R;
  * Created by Anton on 07.05.2018.
  */
 
-public class StopStreamDialog  extends DialogFragment {
-
-    private TextView loading_message;
+public class StopStreamDialog extends DialogFragment {
 
     @NonNull
     @Override

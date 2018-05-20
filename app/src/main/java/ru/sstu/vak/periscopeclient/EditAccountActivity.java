@@ -155,12 +155,11 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
 
 
     private void setDataFromCache() {
-        imageLoader.displayImage(sharedPrefWrapper.getString("profileImgPath"), profile_img);
-        first_name_field.setText(sharedPrefWrapper.getString("firstName"));
-        last_name_field.setText(sharedPrefWrapper.getString("lastName"));
-        String s =sharedPrefWrapper.getString("login");
-        login_field.setText(sharedPrefWrapper.getString("login"));
-        aboutme_field.setText(sharedPrefWrapper.getString("aboutMe"));
+        imageLoader.displayImage(sharedPrefWrapper.getString(getString(R.string.profile_img_path)), profile_img);
+        first_name_field.setText(sharedPrefWrapper.getString(getString(R.string.first_name)));
+        last_name_field.setText(sharedPrefWrapper.getString(getString(R.string.last_name)));
+        login_field.setText(sharedPrefWrapper.getString(getString(R.string.login)));
+        aboutme_field.setText(sharedPrefWrapper.getString(getString(R.string.about_me)));
     }
 
     private void saveChanges() {
@@ -170,8 +169,6 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
         MultipartBody.Part filePart = null;
         if (localFileUri != null) {
             file = new File(localFileUri.getPath());
-            //file = new File(getRealPathFromURI(localFileUri));
-            //RequestBody requestFile = RequestBody.create(MediaType.parse(getContentResolver().getType(localFileUri)), file);
             RequestBody requestFile = RequestBody.create(MediaType.parse(getMimeType(localFileUri.getPath())), file);
             filePart = MultipartBody.Part.createFormData("img", file.getName(), requestFile);
         }
@@ -312,7 +309,7 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
 
     private void initializeServerApi() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://anton-var.ddns.net:8080")
+                .baseUrl(String.format("http://%1$s:%2$s",R.string.server_domain_name,R.string.servers_port))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         periscopeApi = retrofit.create(PeriscopeApi.class);
@@ -352,156 +349,3 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
         fields[3] = aboutme_field.getText().toString();
     }
 }
-
-
-//    private String removeFirstSymbol(String str) {
-//        return str.substring(1, str.length());
-//    }
-//        private boolean isDefaultImg(String url) {
-//        Pattern p = Pattern.compile(".+default\\..+");
-//        Matcher m = p.matcher(url);
-//
-//        if (m.matches()) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
-//    private void updateUser() {
-//        final LoadingDialog dialog = showLoadDialog();
-//
-//        UserModel userModel = new UserModel(-1,
-//                login_field.getText().toString(),
-//                netFilePath,
-//                first_name_field.getText().toString(),
-//                last_name_field.getText().toString(),
-//                aboutme_field.getText().toString());
-//
-//        String token = tokenUtils.getToken();
-//
-//
-//        Call<MyResponse<Void>> call = periscopeApi.updateUser(new MyRequest<UserModel>(userModel, token));
-//        call.enqueue(new Callback<MyResponse<Void>>() {
-//            @Override
-//            public void onResponse(Call<MyResponse<Void>> call, Response<MyResponse<Void>> response) {
-//                if (response.isSuccessful()) {
-//                    MyResponse<Void> resp = response.body();
-//
-//                    if (resp.getError() == null) {
-//                        finishActivity();
-//                    } else if (resp.getError().equals("invalid authToken")) {
-//                        Intent intent = new Intent(getBaseContext(), ru.sstu.vak.periscopeclient.AuthorizationActivity.class);
-//                        startActivityForResult(intent, 1);
-//                    } else {
-//                        login_error_field.setVisibility(View.VISIBLE);
-//                        login_error_field.setText(resp.getError());
-//                    }
-//                    dialog.dismiss();
-//                } else {
-//                    showMessage("Сервер вернул ошибку");
-//                    dialog.dismiss();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<MyResponse<Void>> call, Throwable t) {
-//                showMessage("Сервер не отвечает");
-//                dialog.dismiss();
-//            }
-//        });
-//    }
-//
-//    private void uploadImg() {
-//        File file = new File(getRealPathFromURI(localFileUri));
-//
-//        if (file.length() <= 2097152) {
-//            final LoadingDialog dialog = showLoadDialog();
-//
-//            UserModel userModel = new UserModel(-1,
-//                    login_field.getText().toString(),
-//                    "",
-//                    first_name_field.getText().toString(),
-//                    last_name_field.getText().toString(),
-//                    aboutme_field.getText().toString());
-//
-//            String token = tokenUtils.getToken();
-//            RequestBody requestFile = RequestBody.create(MediaType.parse(getContentResolver().getType(localFileUri)), file);
-//            MultipartBody.Part filePart = MultipartBody.Part.createFormData("img", file.getName(), requestFile);
-//
-//            Call<MyResponse<Void>> call = periscopeApi.saveChanges(filePart, new MyRequest<UserModel>(userModel,token));
-//            call.enqueue(new Callback<MyResponse<Void>>() {
-//                @Override
-//                public void onResponse(Call<MyResponse<Void>> call, Response<MyResponse<Void>> response) {
-//                    if (response.isSuccessful()) {
-//                        MyResponse<Void> resp = response.body();
-//
-//                        if (resp.getError() == null) {
-//                            localFileUri = null;
-//                            //netFilePath = resp.getData();
-//                            if (isNeedSave()) {
-//                                updateUser();
-//                            } else {
-//                                finishActivity();
-//                            }
-//                        } else if (resp.getError().equals("invalid authToken")) {
-//                            Intent intent = new Intent(getBaseContext(), ru.sstu.vak.periscopeclient.AuthorizationActivity.class);
-//                            startActivityForResult(intent, 1);
-//                        } else {
-//                            login_error_field.setVisibility(View.VISIBLE);
-//                            login_error_field.setText(resp.getError());
-//                        }
-//                        dialog.dismiss();
-//                    } else {
-//                        showMessage("Сервер вернул ошибку");
-//                        dialog.dismiss();
-//                    }
-//                }
-//
-//                @Override
-//                public void onFailure(Call<MyResponse<Void>> call, Throwable t) {
-//                    showMessage("Сервер не отвечает");
-//                    dialog.dismiss();
-//                }
-//            });
-//        } else {
-//            showMessage("Размер файла не должен превышать 2 Мб");
-//        }
-//    }
-//
-//    private void setProfileImg(final String url) {
-//        profile_img.setImageDrawable(getResources().getDrawable(R.drawable.default_profile_img));
-//        if (!isDefaultImg(url)) {
-//            profile_img.setBackground(null);
-//            profile_img.setImageBitmap(null);
-//
-//            DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder().cacheInMemory(true).imageScaleType(ImageScaleType.EXACTLY).build();
-//            imageLoader.displayImage(url, profile_img, defaultOptions, new ImageLoadingListener() {
-//                @Override
-//                public void onLoadingStarted(String imageUri, View view) {
-//                    edit_profile_btn.setVisibility(View.INVISIBLE);
-//                    profile_img.setVisibility(View.INVISIBLE);
-//                    profile_img_progressbar.setVisibility(View.VISIBLE);
-//                }
-//
-//                @Override
-//                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-//                    edit_profile_btn.setVisibility(View.VISIBLE);
-//                    profile_img.setVisibility(View.VISIBLE);
-//                    profile_img_progressbar.setVisibility(View.INVISIBLE);
-//                    profile_img.setImageDrawable(getResources().getDrawable(R.drawable.default_profile_img));
-//                }
-//
-//                @Override
-//                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-//                    edit_profile_btn.setVisibility(View.VISIBLE);
-//                    profile_img.setVisibility(View.VISIBLE);
-//                    profile_img_progressbar.setVisibility(View.INVISIBLE);
-//                }
-//
-//                @Override
-//                public void onLoadingCancelled(String imageUri, View view) {
-//
-//                }
-//            });
-//        }
-//    }
