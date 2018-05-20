@@ -88,7 +88,7 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
                     profile_img.setImageURI(localFileUri);
                 }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Exception error = result.getError();
+                // do nothing
             }
         }
     }
@@ -108,7 +108,7 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
                         saveChanges();
                     }
                 } else {
-                    finishActivity();
+                    finishActivity(false);
                 }
                 break;
             }
@@ -160,7 +160,7 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
             public void onSuccess(MyResponse<Void> response) {
                 if (response.getError() == null) {
                     localFileUri = null;
-                    finishActivity();
+                    finishActivity(false);
                 } else {
                     login_error_field.setVisibility(View.VISIBLE);
                     login_error_field.setText(response.getError());
@@ -279,8 +279,10 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-    private void finishActivity() {
-        setResult(RESULT_OK, null);
+    private void finishActivity(boolean exit) {
+        Intent intent = new Intent();
+        intent.putExtra("exit", exit);
+        setResult(RESULT_OK, intent);
         finish();
     }
 

@@ -193,7 +193,7 @@ public class RetrofitWrapper {
         });
     }
 
-    public void getRooms(Callback callback) {
+    public void getRooms(boolean checkToken, Callback callback) {
         String token = tokenUtils.getToken();
         Call<MyResponse<ArrayList<RoomModel>>> call = periscopeApi.getRooms(new MyRequest<Void>(null, token));
         call.enqueue(new retrofit2.Callback<MyResponse<ArrayList<RoomModel>>>() {
@@ -203,8 +203,10 @@ public class RetrofitWrapper {
                     MyResponse<ArrayList<RoomModel>> resp = response.body();
                     if (resp.getError() == null) {
                         callback.onSuccess(resp.getData());
-                    } else if (resp.getError().equals(context.getString(R.string.invalid_authToken))) {
+                    } else if (checkToken && resp.getError().equals(context.getString(R.string.invalid_authToken))) {
                         callback.onFailure(new Exception(context.getString(R.string.invalid_authToken)));
+                        tokenUtils.setToken("");
+                        sharedPrefWrapper.setString(context.getString(R.string.updateDate), "");
                         Intent intent = new Intent(context, ru.sstu.vak.periscopeclient.AuthorizationActivity.class);
                         ((Activity) context).startActivityForResult(intent, 1);
                     }

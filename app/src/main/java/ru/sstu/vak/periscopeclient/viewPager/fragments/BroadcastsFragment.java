@@ -120,19 +120,18 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
     }
 
     private void refreshRooms(final boolean swipe) {
-        retrofitWrapper.getRooms(new RetrofitWrapper.Callback<ArrayList<RoomModel>>() {
+        retrofitWrapper.getRooms(true, new RetrofitWrapper.Callback<ArrayList<RoomModel>>() {
             @Override
             public void onSuccess(ArrayList<RoomModel> rooms) {
                 swipe_refresh.setRefreshing(false);
                 hideMiddleProgressBar();
-                //refreshRoomsLayout();
 
                 ArrayList<BroadcastsModel> broadcastsModels = convertRoomModels(rooms);
+                broadcastsAdapter.refreshBroadcasts(convertRoomModels(rooms));
                 if (broadcastsModels.size() == 0) {
                     empty_broadcasts_text_view.setVisibility(View.VISIBLE);
                 } else {
                     empty_broadcasts_text_view.setVisibility(View.INVISIBLE);
-                    broadcastsAdapter.refreshBroadcasts(convertRoomModels(rooms));
                 }
 
 //                empty_broadcasts_text_view.setVisibility(View.VISIBLE);
@@ -463,7 +462,7 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
             broadcastsModels.add(new BroadcastsModel(Integer.toString(roomModel.getObservers().size()),
                     roomModel.getRoomDescription(),
                     roomModel.getRoomOwner().getLogin(),
-                    roomModel.getStreamName(),null));
+                    roomModel.getStreamName(), null));
         }
         return broadcastsModels;
     }

@@ -82,7 +82,15 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        checkForUpdates();
+        if (data == null) {
+            return;
+        }
+        if (data.getBooleanExtra("exit", false)) {
+            finishActivity(true);
+        }
+        else {
+            checkForUpdates();
+        }
     }
 
     @Override
@@ -245,6 +253,13 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
         finish();
     }
 
+    private void finishActivity(boolean exit) {
+        Intent intent = new Intent();
+        intent.putExtra("exit", exit);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
     private void setActivitiesItems() {
         exit_acc_btn = (Button) findViewById(R.id.exit_acc_btn);
         exit_acc_btn.setOnClickListener(this);
@@ -305,4 +320,5 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
             return false;
         }
     }
+
 }

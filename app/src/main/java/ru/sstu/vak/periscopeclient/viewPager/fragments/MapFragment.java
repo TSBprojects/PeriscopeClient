@@ -196,7 +196,7 @@ public class MapFragment extends Fragment implements View.OnClickListener, OnMap
     }
 
     private void setMarkers() {
-        retrofitWrapper.getRooms(new RetrofitWrapper.Callback<ArrayList<RoomModel>>() {
+        retrofitWrapper.getRooms(false,new RetrofitWrapper.Callback<ArrayList<RoomModel>>() {
             @Override
             public void onSuccess(ArrayList<RoomModel> rooms) {
                 for (int i = 0; i < rooms.size(); i++) {

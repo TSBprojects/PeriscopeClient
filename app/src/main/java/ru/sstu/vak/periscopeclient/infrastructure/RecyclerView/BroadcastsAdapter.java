@@ -26,10 +26,8 @@ public class BroadcastsAdapter extends RecyclerView.Adapter<BroadcastsAdapter.Br
 
     private Context context;
     private View.OnClickListener clickListener;
-    //private HashMap<BroadcastsModel,LivePlayer> broadcastsList = new HashMap<BroadcastsModel, LivePlayer>();
     private ArrayList<BroadcastsModel> broadcastsList = new ArrayList<>();
 
-    //private ArrayList<LivePlayer> previewList;
     public BroadcastsAdapter(Context context, View.OnClickListener clickListener) {
         this.context = context;
         this.clickListener = clickListener;
@@ -42,7 +40,7 @@ public class BroadcastsAdapter extends RecyclerView.Adapter<BroadcastsAdapter.Br
             for (int j = 0; j < broadcastsList.size(); j++) {
                 BroadcastsModel oldBroadcast = broadcastsList.get(j);
                 if (newBroadcast.getStreamName().equals(oldBroadcast.getStreamName())) {
-                    updateItem(j);
+                    updateItem(j,newBroadcast.getObserversCount());
                     match = true;
                     break;
                 }
@@ -63,7 +61,6 @@ public class BroadcastsAdapter extends RecyclerView.Adapter<BroadcastsAdapter.Br
         }
     }
 
-
     private boolean isBroadcastExist(BroadcastsModel broadcast, ArrayList<BroadcastsModel> broadcastsList) {
         for (int i = 0; i < broadcastsList.size(); i++) {
             if (broadcastsList.get(i).getStreamName().equals(broadcast.getStreamName())) {
@@ -73,12 +70,13 @@ public class BroadcastsAdapter extends RecyclerView.Adapter<BroadcastsAdapter.Br
         return false;
     }
 
-
-    private void updateItem(int position) {
+    private void updateItem(int position, String observersCount) {
         BroadcastsModel broadcast = broadcastsList.get(position);
         LivePlayer streamPreview = broadcast.getStreamPreview();
         streamPreview.onStop();
         broadcast.setStreamPreview(new LivePlayer(streamPreview.getSimpleExoPlayerView(), broadcast.getStreamName(), context));
+        broadcast.setObserversCount(observersCount);
+        notifyItemRemoved(position);
     }
 
     private void addItem(BroadcastsModel broadcast) {
@@ -121,7 +119,6 @@ public class BroadcastsAdapter extends RecyclerView.Adapter<BroadcastsAdapter.Br
     public int getItemCount() {
         return broadcastsList.size();
     }
-
 
     class BroadcastsViewHolder extends RecyclerView.ViewHolder {
         private LinearLayout broadcastLayout;
