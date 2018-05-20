@@ -40,7 +40,7 @@ public class BroadcastsAdapter extends RecyclerView.Adapter<BroadcastsAdapter.Br
             for (int j = 0; j < broadcastsList.size(); j++) {
                 BroadcastsModel oldBroadcast = broadcastsList.get(j);
                 if (newBroadcast.getStreamName().equals(oldBroadcast.getStreamName())) {
-                    updateItem(j,newBroadcast.getObserversCount());
+                    updateItem(j, newBroadcast.getObserversCount());
                     match = true;
                     break;
                 }
@@ -75,8 +75,10 @@ public class BroadcastsAdapter extends RecyclerView.Adapter<BroadcastsAdapter.Br
         LivePlayer streamPreview = broadcast.getStreamPreview();
         streamPreview.onStop();
         broadcast.setStreamPreview(new LivePlayer(streamPreview.getSimpleExoPlayerView(), broadcast.getStreamName(), context));
-        broadcast.setObserversCount(observersCount);
-        notifyItemChanged(position);
+        if (!broadcast.getObserversCount().equals(observersCount)) {
+            broadcast.setObserversCount(observersCount);
+            notifyItemChanged(position);
+        }
     }
 
     private void addItem(BroadcastsModel broadcast) {
@@ -112,7 +114,7 @@ public class BroadcastsAdapter extends RecyclerView.Adapter<BroadcastsAdapter.Br
 
     @Override
     public void onBindViewHolder(@NonNull BroadcastsViewHolder holder, int position) {
-        holder.bind(broadcastsList.get(position));
+        holder.bind(broadcastsList.get(holder.getAdapterPosition()));
     }
 
     @Override

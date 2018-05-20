@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
+import jp.wasabeef.recyclerview.animators.SlideInRightAnimator;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ru.sstu.vak.periscopeclient.R;
@@ -68,7 +71,6 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //previewList = new ArrayList<>();
         pageNumber = getArguments().getInt(ARGUMENT_PAGE_NUMBER);
         initializeServerApi();
 
@@ -90,7 +92,7 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
         if (!getActivity().getIntent().getBooleanExtra("signOut", false)) {
             stopTimer();
             startTimer(0);
-            refreshRoomsLayout();
+            //refreshRoomsLayout();
             showMiddleProgressBar();
         } else {
             getActivity().getIntent().putExtra("signOut", false);
@@ -133,12 +135,6 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
                 } else {
                     empty_broadcasts_text_view.setVisibility(View.INVISIBLE);
                 }
-
-//                empty_broadcasts_text_view.setVisibility(View.VISIBLE);
-//                for (RoomModel room : rooms) {
-//                    empty_broadcasts_text_view.setVisibility(View.INVISIBLE);
-//                    addStreamToScreen(room.getStreamName(), room.getRoomOwner().getLogin(), room.getRoomDescription(), room.getObservers().size());
-//                }
             }
 
             @Override
@@ -184,235 +180,6 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
         broadcastsAdapter.clearItems();
     }
 
-//    private void clearRoomsLayout() {
-//        for (int i = 0; i < previewList.size(); i++) {
-//            previewList.get(i).onStop();
-//        }
-//        previewList.clear();
-//        rooms_layout.removeAllViews();
-//    }
-//
-//    private void addStreamToScreen(String streamName, String userLogin, String description, int observersCount) {
-//        TextView userLoginTV = createUserLoginTextView(userLogin);
-//        TextView streamDescrTV = createStreamDescrTextView(description);
-//        Space space = createSpace();
-//        TextView observersCountTV = createObserversCountTextView(Integer.toString(observersCount));
-//        ImageView observersImage = createObserversImage();
-//        TextView liveStreamTV = createLiveStreamTextView();
-//        LinearLayout observersCountLayout = createObserversCountLayout();
-//        LinearLayout mainInfoLayout = createMainInfoLayout();
-//        //ProgressBar streamPreviewProgressBar = createStreamPreviewProgressBar();
-//        SimpleExoPlayerView streamPreview = createStreamPreview(streamName);
-//        LinearLayout mainLayout = createMainLayout(streamName);
-//
-//        observersCountLayout.addView(liveStreamTV);
-//        observersCountLayout.addView(observersImage);
-//        observersCountLayout.addView(observersCountTV);
-//        observersCountLayout.addView(space);
-//        mainInfoLayout.addView(observersCountLayout);
-//        mainInfoLayout.addView(streamDescrTV);
-//        mainInfoLayout.addView(userLoginTV);
-//        mainLayout.addView(streamPreview);
-//        //mainLayout.addView(streamPreviewProgressBar);
-//        mainLayout.addView(mainInfoLayout);
-//        rooms_layout.addView(mainLayout);
-//    }
-//
-//    private LinearLayout createMainLayout(String streamName) {
-//        int PXmargin = convertDpToPixel(4);
-//        LinearLayout newLinearLayout = new LinearLayout(getContext());
-//        LinearLayout.LayoutParams newLinearLayout_params =
-//                new LinearLayout.LayoutParams(
-//                        LinearLayout.LayoutParams.MATCH_PARENT,
-//                        LinearLayout.LayoutParams.MATCH_PARENT,
-//                        1
-//                );
-//
-//        int[] attrs = new int[]{R.attr.selectableItemBackground};
-//        TypedArray typedArray = getContext().obtainStyledAttributes(attrs);
-//        int backgroundResource = typedArray.getResourceId(0, 0);
-//        newLinearLayout.setBackgroundResource(backgroundResource);
-//        typedArray.recycle();
-//
-//        newLinearLayout.setTag(streamName);
-//        newLinearLayout.setOnClickListener(this);
-//        newLinearLayout.setFocusable(true);
-//        newLinearLayout.setClickable(true);
-//        newLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
-//        newLinearLayout_params.setMargins(0, PXmargin, 0, 0);
-//        newLinearLayout.setLayoutParams(newLinearLayout_params);
-//        return newLinearLayout;
-//    }
-//
-//    private SimpleExoPlayerView createStreamPreview(String streamName) {
-//        SimpleExoPlayerView imageView = new SimpleExoPlayerView(getContext());
-//        LinearLayout.LayoutParams imageView_params =
-//                new LinearLayout.LayoutParams(
-//                        convertDpToPixel(100),
-//                        convertDpToPixel(100)
-//                );
-//
-//        //stream preview
-//        //imageView.setBackgroundColor(getResources().getColor(R.color.middle_gray));
-//        //stream preview
-//
-//        //imageView.setVisibility(View.GONE);
-//        imageView.setLayoutParams(imageView_params);
-//
-//        imageView.setUseController(false);
-//        previewList.add(new LivePlayer(imageView, streamName, getContext()));
-//
-//        return imageView;
-//    }
-//
-//    private ProgressBar createStreamPreviewProgressBar() {
-//        int PXpadding = convertDpToPixel(35);
-//        ProgressBar progressBar = new ProgressBar(getContext());
-//        LinearLayout.LayoutParams imageView_params =
-//                new LinearLayout.LayoutParams(
-//                        convertDpToPixel(100),
-//                        convertDpToPixel(100)
-//                );
-//
-//        progressBar.setPadding(PXpadding, PXpadding, PXpadding, PXpadding);
-//        progressBar.setVisibility(View.GONE);
-//        progressBar.setLayoutParams(imageView_params);
-//
-//        return progressBar;
-//    }
-//
-//    private LinearLayout createMainInfoLayout() {
-//        int PXpadding = convertDpToPixel(7);
-//        LinearLayout newLinearLayout = new LinearLayout(getContext());
-//        LinearLayout.LayoutParams newLinearLayout_params =
-//                new LinearLayout.LayoutParams(
-//                        LinearLayout.LayoutParams.MATCH_PARENT,
-//                        LinearLayout.LayoutParams.MATCH_PARENT,
-//                        3
-//                );
-//        newLinearLayout.setOrientation(LinearLayout.VERTICAL);
-//        newLinearLayout.setPadding(PXpadding, PXpadding, PXpadding, 0);
-//        newLinearLayout.setLayoutParams(newLinearLayout_params);
-//        return newLinearLayout;
-//    }
-//
-//    private LinearLayout createObserversCountLayout() {
-//        LinearLayout newLinearLayout = new LinearLayout(getContext());
-//        LinearLayout.LayoutParams newLinearLayout_params =
-//                new LinearLayout.LayoutParams(
-//                        LinearLayout.LayoutParams.MATCH_PARENT,
-//                        LinearLayout.LayoutParams.WRAP_CONTENT,
-//                        0
-//                );
-//        newLinearLayout.setGravity(Gravity.CENTER);
-//        newLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
-//        newLinearLayout.setLayoutParams(newLinearLayout_params);
-//        return newLinearLayout;
-//    }
-//
-//    private TextView createLiveStreamTextView() {
-//        int PXpadding = convertDpToPixel(2);
-//        TextView newTextView = new TextView(getContext());
-//        LinearLayout.LayoutParams newTextView_params =
-//                new LinearLayout.LayoutParams(
-//                        LinearLayout.LayoutParams.WRAP_CONTENT,
-//                        LinearLayout.LayoutParams.WRAP_CONTENT,
-//                        1
-//                );
-//        newTextView.setText(getString(R.string.on_air));
-//        newTextView.setTextSize(12);
-//        newTextView.setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
-//        newTextView.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.record_lable));
-//        newTextView.setGravity(Gravity.CENTER);
-//        newTextView.setPadding(PXpadding, 0, PXpadding, PXpadding);
-//        newTextView.setLayoutParams(newTextView_params);
-//        return newTextView;
-//    }
-//
-//    private ImageView createObserversImage() {
-//        int PXpadding = convertDpToPixel(4);
-//        ImageView imageView = new ImageView(getContext());
-//        LinearLayout.LayoutParams imageView_params =
-//                new LinearLayout.LayoutParams(
-//                        LinearLayout.LayoutParams.WRAP_CONTENT,
-//                        LinearLayout.LayoutParams.WRAP_CONTENT,
-//                        1
-//                );
-//        imageView.setImageResource(R.drawable.ic_people_black_24dp);
-//        imageView.setPadding(0, 0, -PXpadding, 0);
-//        imageView_params.setMargins(PXpadding, 0, 0, 0);
-//        imageView.setLayoutParams(imageView_params);
-//        return imageView;
-//    }
-//
-//    private TextView createObserversCountTextView(String count) {
-//        int PXpadding = convertDpToPixel(4);
-//        TextView newTextView = new TextView(getContext());
-//        LinearLayout.LayoutParams newTextView_params =
-//                new LinearLayout.LayoutParams(
-//                        LinearLayout.LayoutParams.WRAP_CONTENT,
-//                        LinearLayout.LayoutParams.WRAP_CONTENT,
-//                        1
-//                );
-//        newTextView.setText(count);
-//        newTextView.setTextSize(14);
-//        newTextView.setTextColor(ContextCompat.getColor(getContext(), R.color.ic_people_color));
-//        newTextView.setGravity(Gravity.CENTER);
-//        newTextView.setPadding(-PXpadding, 0, 0, 0);
-//        newTextView.setLayoutParams(newTextView_params);
-//        return newTextView;
-//    }
-//
-//    private Space createSpace() {
-//        Space space = new Space(getContext());
-//        LinearLayout.LayoutParams space_params =
-//                new LinearLayout.LayoutParams(
-//                        LinearLayout.LayoutParams.WRAP_CONTENT,
-//                        LinearLayout.LayoutParams.WRAP_CONTENT,
-//                        12
-//                );
-//        space.setLayoutParams(space_params);
-//        return space;
-//    }
-//
-//    private TextView createStreamDescrTextView(String description) {
-//        TextView newTextView = new TextView(getContext());
-//        LinearLayout.LayoutParams newTextView_params =
-//                new LinearLayout.LayoutParams(
-//                        LinearLayout.LayoutParams.MATCH_PARENT,
-//                        LinearLayout.LayoutParams.WRAP_CONTENT,
-//                        0
-//                );
-//
-//        if (description.equals("")) {
-//            newTextView.setVisibility(View.GONE);
-//        } else {
-//            newTextView.setText(description);
-//        }
-//
-//        newTextView.setTextSize(14);
-//        newTextView.setTextColor(ContextCompat.getColor(getContext(), android.R.color.black));
-//        newTextView.setEllipsize(TextUtils.TruncateAt.END);
-//        newTextView.setMaxLines(3);
-//        newTextView.setLayoutParams(newTextView_params);
-//        return newTextView;
-//    }
-//
-//    private TextView createUserLoginTextView(String userLogin) {
-//        TextView newTextView = new TextView(getContext());
-//        LinearLayout.LayoutParams newTextView_params =
-//                new LinearLayout.LayoutParams(
-//                        LinearLayout.LayoutParams.MATCH_PARENT,
-//                        LinearLayout.LayoutParams.WRAP_CONTENT,
-//                        1
-//                );
-//        newTextView.setTextColor(ContextCompat.getColor(getContext(), R.color.user_name_color));
-//        newTextView.setTextSize(12);
-//        newTextView.setText(userLogin);
-//        newTextView.setLayoutParams(newTextView_params);
-//        return newTextView;
-//    }
-
 
     private void setActivitiesItems(View currentView) {
         recycler_view = currentView.findViewById(R.id.recycler_view);
@@ -445,14 +212,11 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
         recycler_view.setLayoutManager(new LinearLayoutManager(getContext()));
         broadcastsAdapter = new BroadcastsAdapter(getContext(), this);
         recycler_view.setAdapter(broadcastsAdapter);
+        recycler_view.setItemAnimator(new SlideInDownAnimator());
     }
 
     private void showMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    private int convertDpToPixel(float dp) {
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
     }
 
     private ArrayList<BroadcastsModel> convertRoomModels(ArrayList<RoomModel> roomModels) {
