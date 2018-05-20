@@ -45,10 +45,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SharedPrefWrapper sharedPrefWrapper;
 
 
-//    public void test(View view) {
-//        Intent intent = new Intent(this, Test.class);
-//        startActivity(intent);
-//    }
 
 
     @Override

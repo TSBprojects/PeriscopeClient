@@ -8,6 +8,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.Space;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -28,11 +30,12 @@ import java.util.TimerTask;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import ru.sstu.vak.periscopeclient.MainActivity;
 import ru.sstu.vak.periscopeclient.R;
 import ru.sstu.vak.periscopeclient.Retrofit.PeriscopeApi;
 import ru.sstu.vak.periscopeclient.Retrofit.RetrofitWrapper;
 import ru.sstu.vak.periscopeclient.Retrofit.models.RoomModel;
+import ru.sstu.vak.periscopeclient.infrastructure.RecyclerView.BroadcastsAdapter;
+import ru.sstu.vak.periscopeclient.infrastructure.RecyclerView.BroadcastsModel;
 import ru.sstu.vak.periscopeclient.infrastructure.TokenUtils;
 import ru.sstu.vak.periscopeclient.liveVideoPlayer.LivePlayer;
 import ru.sstu.vak.periscopeclient.liveVideoPlayer.LiveVideoPlayerActivity;
@@ -50,9 +53,12 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
     private PeriscopeApi periscopeApi;
     private TokenUtils tokenUtils;
 
+    private BroadcastsAdapter broadcastsAdapter;
+
     private SwipeRefreshLayout swipe_refresh;
     private LinearLayout rooms_layout;
-    private TextView empty_broadcasts_textview;
+    private RecyclerView recycler_view;
+    private TextView empty_broadcasts_text_view;
     private ProgressBar progressBar;
 
     private Timer mTimer;
@@ -74,21 +80,16 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
         previewList = new ArrayList<>();
         pageNumber = getArguments().getInt(ARGUMENT_PAGE_NUMBER);
         initializeServerApi();
+
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View currentView = inflater.inflate(R.layout.broadcasts_fragment, null);
         setActivitiesItems(currentView);
+        initializeRecyclerView();
 
-        swipe_refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshRooms(true);
-                stopTimer();
-                startTimer(15000);
-            }
-        });
         return currentView;
     }
 
@@ -112,7 +113,7 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
     }
 
     private void showMiddleProgressBar() {
-        empty_broadcasts_textview.setVisibility(View.INVISIBLE);
+        empty_broadcasts_text_view.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.VISIBLE);
         swipe_refresh.setEnabled(false);
     }
@@ -128,17 +129,22 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
     }
 
     private void refreshRooms(final boolean swipe) {
-        retrofitWrapper.getRooms(new RetrofitWrapper.Callback< ArrayList<RoomModel>>() {
+        retrofitWrapper.getRooms(new RetrofitWrapper.Callback<ArrayList<RoomModel>>() {
             @Override
             public void onSuccess(ArrayList<RoomModel> rooms) {
                 swipe_refresh.setRefreshing(false);
                 hideMiddleProgressBar();
-                clearRoomsLayout();
-                empty_broadcasts_textview.setVisibility(View.VISIBLE);
-                for (RoomModel room : rooms) {
-                    empty_broadcasts_textview.setVisibility(View.INVISIBLE);
-                    addStreamToScreen(room.getStreamName(), room.getRoomOwner().getLogin(), room.getRoomDescription(), room.getObservers().size());
-                }
+                //clearRoomsLayout();
+
+                ArrayList<BroadcastsModel> broadcastsModels = convertRoomModels(rooms);
+                broadcastsAdapter.clearItems();
+                broadcastsAdapter.setItems(broadcastsModels);
+
+//                empty_broadcasts_text_view.setVisibility(View.VISIBLE);
+//                for (RoomModel room : rooms) {
+//                    empty_broadcasts_text_view.setVisibility(View.INVISIBLE);
+//                    addStreamToScreen(room.getStreamName(), room.getRoomOwner().getLogin(), room.getRoomDescription(), room.getObservers().size());
+//                }
             }
 
             @Override
@@ -198,8 +204,8 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
         TextView liveStreamTV = createLiveStreamTextView();
         LinearLayout observersCountLayout = createObserversCountLayout();
         LinearLayout mainInfoLayout = createMainInfoLayout();
-        ProgressBar streamPreviewProgressBar = createStreamPreviewProgressBar();
-        SimpleExoPlayerView streamPreview = createStreamPreview(streamName, streamPreviewProgressBar);
+        //ProgressBar streamPreviewProgressBar = createStreamPreviewProgressBar();
+        SimpleExoPlayerView streamPreview = createStreamPreview(streamName);
         LinearLayout mainLayout = createMainLayout(streamName);
 
         observersCountLayout.addView(liveStreamTV);
@@ -210,7 +216,7 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
         mainInfoLayout.addView(streamDescrTV);
         mainInfoLayout.addView(userLoginTV);
         mainLayout.addView(streamPreview);
-        mainLayout.addView(streamPreviewProgressBar);
+        //mainLayout.addView(streamPreviewProgressBar);
         mainLayout.addView(mainInfoLayout);
         rooms_layout.addView(mainLayout);
     }
@@ -241,7 +247,7 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
         return newLinearLayout;
     }
 
-    private SimpleExoPlayerView createStreamPreview(String streamName, ProgressBar progressBar) {
+    private SimpleExoPlayerView createStreamPreview(String streamName) {
         SimpleExoPlayerView imageView = new SimpleExoPlayerView(getContext());
         LinearLayout.LayoutParams imageView_params =
                 new LinearLayout.LayoutParams(
@@ -257,7 +263,7 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
         imageView.setLayoutParams(imageView_params);
 
         imageView.setUseController(false);
-        previewList.add(new LivePlayer(imageView, streamName, getContext(), progressBar));
+        previewList.add(new LivePlayer(imageView, streamName, getContext()));
 
         return imageView;
     }
@@ -412,12 +418,21 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
 
 
     private void setActivitiesItems(View currentView) {
-        swipe_refresh = (SwipeRefreshLayout) currentView.findViewById(R.id.swipe_refresh);
-        tokenUtils = new TokenUtils((MainActivity) getActivity());
+        recycler_view = currentView.findViewById(R.id.recycler_view);
+        swipe_refresh = currentView.findViewById(R.id.swipe_refresh);
+        swipe_refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshRooms(true);
+                stopTimer();
+                startTimer(15000);
+            }
+        });
+        tokenUtils = new TokenUtils(getActivity());
         retrofitWrapper = new RetrofitWrapper(getContext());
-        rooms_layout = (LinearLayout) currentView.findViewById(R.id.rooms_layout);
-        empty_broadcasts_textview = (TextView) currentView.findViewById(R.id.empty_broadcasts_textview);
-        progressBar = (ProgressBar) currentView.findViewById(R.id.progressBar);
+        rooms_layout = currentView.findViewById(R.id.rooms_layout);
+        empty_broadcasts_text_view = currentView.findViewById(R.id.empty_broadcasts_textview);
+        progressBar = currentView.findViewById(R.id.progressBar);
         mMyTimerTask = new MyTimerTask();
     }
 
@@ -429,12 +444,30 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
         periscopeApi = retrofit.create(PeriscopeApi.class);
     }
 
+    private void initializeRecyclerView() {
+        recycler_view.setLayoutManager(new LinearLayoutManager(getContext()));
+        broadcastsAdapter = new BroadcastsAdapter(getContext(), this, previewList);
+        recycler_view.setAdapter(broadcastsAdapter);
+    }
+
     private void showMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     private int convertDpToPixel(float dp) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
+    }
+
+    private ArrayList<BroadcastsModel> convertRoomModels(ArrayList<RoomModel> roomModels) {
+        ArrayList<BroadcastsModel> broadcastsModels = new ArrayList<BroadcastsModel>();
+
+        for (RoomModel roomModel : roomModels) {
+            broadcastsModels.add(new BroadcastsModel(Integer.toString(roomModel.getObservers().size()),
+                    roomModel.getRoomDescription(),
+                    roomModel.getRoomOwner().getLogin(),
+                    roomModel.getStreamName()));
+        }
+        return broadcastsModels;
     }
 
 

@@ -1,5 +1,6 @@
 package ru.sstu.vak.periscopeclient.liveVideoPlayer;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -90,10 +91,8 @@ public class LivePlayer implements ExoPlayer.EventListener, PlaybackControlView.
 
     private Context context;
     private String streamName;
-    private ProgressBar streamPreviewProgressBar;
 
-    public LivePlayer(SimpleExoPlayerView simpleExoPlayerView, String streamName, Context context,ProgressBar streamPreviewProgressBar) {
-        this.streamPreviewProgressBar = streamPreviewProgressBar;
+    public LivePlayer(SimpleExoPlayerView simpleExoPlayerView, String streamName, Context context) {
         this.simpleExoPlayerView = simpleExoPlayerView;
         this.streamName = streamName;
         this.context = context;
@@ -328,6 +327,7 @@ public class LivePlayer implements ExoPlayer.EventListener, PlaybackControlView.
     }
 
     @Override
+    @SuppressLint("StringFormatInvalid")
     public void onPlayerError(ExoPlaybackException e) {
         String errorString = null;
         if (e.type == ExoPlaybackException.TYPE_RENDERER) {

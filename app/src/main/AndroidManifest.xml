@@ -74,7 +74,6 @@
              You can define the keys for the debug and release targets in src/debug/ and src/release/. 
         -->
 
-        <activity android:name=".Test"></activity>
     </application>
 
 </manifest>
