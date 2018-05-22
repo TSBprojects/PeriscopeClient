@@ -1,6 +1,7 @@
 package io.antmedia.android.broadcaster;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Service;
@@ -52,8 +53,12 @@ import io.antmedia.android.broadcaster.utils.Utils;
 
 public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcaster, CameraHandler.ICameraViewer, SurfaceTexture.OnFrameAvailableListener/*, Parcelable*/ {
 
+    public static final int PERMISSIONS_REQUEST = 8954;
+    public final static int SAMPLE_AUDIO_RATE_IN_HZ = 44100;
     private static final String TAG = LiveVideoBroadcaster.class.getSimpleName();
     private volatile static CameraProxy sCameraProxy;
+    private volatile static boolean sCameraReleased;
+    private static TextureMovieEncoder sVideoEncoder = new TextureMovieEncoder();
     private IMediaMuxer mRtmpStreamer;
     private AudioRecorderThread audioThread;
     private boolean isRecording = false;
@@ -62,16 +67,10 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
     private CameraHandler mCameraHandler;
     private AudioHandler audioHandler;
     private Activity context;
-    private volatile static boolean sCameraReleased;
     private ArrayList<Resolution> choosenPreviewsSizeList;
     private IBinder mBinder = new LocalBinder();
     private int currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-
     private int frameRate = 15;
-    public static final int PERMISSIONS_REQUEST = 8954;
-
-    public final static int SAMPLE_AUDIO_RATE_IN_HZ = 44100;
-    private static TextureMovieEncoder sVideoEncoder = new TextureMovieEncoder();
     private Resolution previewSize;
     private AlertDialog mAlertDialog;
     private HandlerThread mRtmpHandlerThread;
@@ -79,56 +78,6 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
     private ConnectivityManager connectivityManager;
     private boolean adaptiveStreamingEnabled = false;
     private Timer adaptiveStreamingTimer = null;
-
-
-
-
-
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//    public LiveVideoBroadcaster() {
-//
-//    }
-//
-//    public LiveVideoBroadcaster(Parcel in) {
-//        isRecording = in.readByte() != 0;
-//        mBinder = in.readStrongBinder();
-//        currentCameraId = in.readInt();
-//        frameRate = in.readInt();
-//        adaptiveStreamingEnabled = in.readByte() != 0;
-//    }
-//
-//    public static final Creator<LiveVideoBroadcaster> CREATOR = new Creator<LiveVideoBroadcaster>() {
-//        @Override
-//        public LiveVideoBroadcaster createFromParcel(Parcel in) {
-//            return new LiveVideoBroadcaster(in);
-//        }
-//
-//        @Override
-//        public LiveVideoBroadcaster[] newArray(int size) {
-//            return new LiveVideoBroadcaster[size];
-//        }
-//    };
-//
-//    @Override
-//    public int describeContents() {
-//        return 0;
-//    }
-//
-//    @Override
-//    public void writeToParcel(Parcel parcel, int i) {
-//        parcel.writeByte((byte) (isRecording ? 1 : 0));
-//        parcel.writeStrongBinder(mBinder);
-//        parcel.writeInt(currentCameraId);
-//        parcel.writeInt(frameRate);
-//        parcel.writeByte((byte) (adaptiveStreamingEnabled ? 1 : 0));
-//    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 
 
     public boolean isConnected() {
@@ -143,9 +92,8 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
         mGLView.requestRender();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     public void pause() {
-
-
         if (mAlertDialog != null && mAlertDialog.isShowing()) {
             mAlertDialog.dismiss();
         }
@@ -171,6 +119,7 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
 
     }
 
+    // need look it up
     public void setDisplayOrientation() {
         if (sCameraProxy != null) {
             sCameraProxy.setDisplayOrientation(getCameraDisplayOrientation());
@@ -186,19 +135,9 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
         return previewSize;
     }
 
-
-    public class LocalBinder extends Binder {
-        public ILiveVideoBroadcaster getService() {
-            // Return this instance of LocalService so clients can call public methods
-            return LiveVideoBroadcaster.this;
-        }
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
-
-
     }
 
     @Override
@@ -373,7 +312,6 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
         return isRecording;
     }
 
-
     public void stopBroadcasting() {
         if (isRecording) {
 
@@ -460,7 +398,6 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
         }
     }
 
-
     public void openCamera(int cameraId) {
         //check permission
         if (!isPermissionGranted()) {
@@ -507,7 +444,7 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
                             setCameraParameters(parameters);
 
                             if (Utils.doesEncoderWorks(context) == Utils.ENCODER_NOT_TESTED) {
-                                boolean encoderWorks = VideoEncoderCore.doesEncoderWork(previewSize.width, previewSize.height, 300000, 15);
+                                boolean encoderWorks = VideoEncoderCore.doesEncoderWork(previewSize.width, previewSize.height, 300000, frameRate);
                                 Utils.setEncoderWorks(context, encoderWorks);
                             }
                         }
@@ -560,7 +497,6 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
         }
     }
 
-
     @Override
     public void setAdaptiveStreaming(boolean enable) {
         this.adaptiveStreamingEnabled = enable;
@@ -569,50 +505,53 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
     private int setCameraParameters(Camera.Parameters parameters) {
 
         List<Camera.Size> previewSizeList = parameters.getSupportedPreviewSizes();
-        double ratio = previewSizeList.get(0).width / (double) previewSizeList.get(0).height;
-        Collections.sort(previewSizeList, new Comparator<Camera.Size>() {
+        Resolution prioritet = new Resolution(previewSizeList.get(0).width, previewSizeList.get(0).height);
+        //double ratio = previewSizeList.get(0).width / (double) previewSizeList.get(0).height;
+//        Collections.sort(previewSizeList, new Comparator<Camera.Size>() {
+//
+//            @Override
+//            public int compare(Camera.Size lhs, Camera.Size rhs) {
+//                if (lhs.height == rhs.height) {
+//                    return lhs.width == rhs.width ? 0 : (lhs.width > rhs.width ? 1 : -1);
+//                } else if (lhs.height > rhs.height) {
+//                    return 1;
+//                }
+//                return -1;
+//            }
+//        });
 
-            @Override
-            public int compare(Camera.Size lhs, Camera.Size rhs) {
-                if (lhs.height == rhs.height) {
-                    return lhs.width == rhs.width ? 0 : (lhs.width > rhs.width ? 1 : -1);
-                } else if (lhs.height > rhs.height) {
-                    return 1;
-                }
-                return -1;
-            }
-        });
 
-
-        int preferredHeight = 720;
+        //int preferredHeight = 720;
 
         choosenPreviewsSizeList = new ArrayList<>();
 
-        int diff = Integer.MAX_VALUE;
-        Resolution choosenSize = null;
-        for (int i = 0; i < previewSizeList.size(); i++) {
-            Camera.Size size = previewSizeList.get(i);
+//        int diff = Integer.MAX_VALUE;
+          Resolution choosenSize = null;
+//        for (int i = 0; i < previewSizeList.size(); i++) {
+//            Camera.Size size = previewSizeList.get(i);
+//
+//            if ((size.width % 16 == 0) && (size.height % 16 == 0)) {
+//                Resolution resolutionSize = new Resolution(size.width, size.height);
+//                choosenPreviewsSizeList.add(resolutionSize);
+//                int currentDiff = Math.abs(size.height - preferredHeight);
+//                if (currentDiff < diff) {
+//                    diff = currentDiff;
+//                    choosenSize = resolutionSize;
+//                }
+//            }
+//        }
 
-            if ((size.width % 16 == 0) && (size.height % 16 == 0)) {
-                Resolution resolutionSize = new Resolution(size.width, size.height);
-                choosenPreviewsSizeList.add(resolutionSize);
-                int currentDiff = Math.abs(size.height - preferredHeight);
-                if (currentDiff < diff) {
-                    diff = currentDiff;
-                    choosenSize = resolutionSize;
-                }
-            }
-        }
 
+//        for (int i = choosenPreviewsSizeList.size() - 1; i > 0; i--) {
+//            Resolution size = choosenPreviewsSizeList.get(i);
+//            double intermediateRes = size.width / (double) size.height;
+//            if (ratio == intermediateRes) {
+//                choosenSize = size;
+//                break;
+//            }
+//        }
 
-        for (int i = choosenPreviewsSizeList.size() - 1; i > 0; i--) {
-            Resolution size = choosenPreviewsSizeList.get(i);
-            double intermediateRes = size.width / (double) size.height;
-            if (ratio == intermediateRes) {
-                choosenSize = size;
-                break;
-            }
-        }
+        choosenSize = prioritet;
 
         int[] requestedFrameRate = new int[]{frameRate * 1000, frameRate * 1000};
         int[] bestFps = findBestFrameRate(parameters.getSupportedPreviewFpsRange(), requestedFrameRate);
@@ -649,7 +588,6 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
 
         return len;
     }
-
 
     public boolean isPermissionGranted() {
         boolean cameraPermissionGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
@@ -854,5 +792,12 @@ public class LiveVideoBroadcaster extends Service implements ILiveVideoBroadcast
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
+    }
+
+    public class LocalBinder extends Binder {
+        public ILiveVideoBroadcaster getService() {
+            // Return this instance of LocalService so clients can call public methods
+            return LiveVideoBroadcaster.this;
+        }
     }
 }

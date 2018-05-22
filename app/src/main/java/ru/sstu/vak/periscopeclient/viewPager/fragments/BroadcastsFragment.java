@@ -93,7 +93,7 @@ public class BroadcastsFragment extends Fragment implements View.OnClickListener
             stopTimer();
             startTimer(0);
             //refreshRoomsLayout();
-            showMiddleProgressBar();
+            //showMiddleProgressBar();
         } else {
             getActivity().getIntent().putExtra("signOut", false);
         }

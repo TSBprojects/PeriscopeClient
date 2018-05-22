@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:background="#88000000"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <TextView
             android:id="@+id/debug_text_view"
@@ -297,7 +297,7 @@
                         android:layout_weight="0"
                         android:background="@android:color/white"
                         android:gravity="left|center"
-                        android:text="@TSBstream"
+                        android:text="/@TSBstream"
                         android:textColor="@color/user_name_color"
                         android:textColorHint="@color/user_name_color"
                         android:textSize="11sp" />

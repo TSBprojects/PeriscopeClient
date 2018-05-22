@@ -43,6 +43,7 @@
             android:name=".liveVideoBroadcaster.RecordActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden"
             android:theme="@style/AppThemeDark" />
         <activity
             android:name=".liveVideoPlayer.LiveVideoPlayerActivity"

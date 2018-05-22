@@ -10,7 +10,6 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 
-
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -28,20 +27,22 @@ import io.antmedia.android.broadcaster.network.IMediaMuxer;
  * GLSurfaceView#queueEvent() call.
  */
 public class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
+
+    private static int BITRATE = 300000;
+    private static int VIDEO_WIDTH = 640;
+    private static int VIDEO_HEIGHT = 360;
+
     private static final String TAG = CameraSurfaceRenderer.class.getSimpleName();
     private static final boolean VERBOSE = false;
-
     private static final int RECORDING_OFF = 0;
     private static final int RECORDING_ON = 1;
     private static final int RECORDING_RESUMED = 2;
     private static final int RECORDER_CONFIG_CHANGED = 3;
-
+    private static boolean DEFAULT_QUALITY_OPTIONS = false;
+    private final float[] mSTMatrix = new float[16];
     private CameraHandler mCameraHandler;
     private TextureMovieEncoder mVideoEncoder;
-
     private FullFrameRect mFullScreen;
-
-    private final float[] mSTMatrix = new float[16];
     private int mTextureId;
 
     private SurfaceTexture mSurfaceTexture;
@@ -57,18 +58,19 @@ public class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
     private long mRecordingStartTime;
     private int bitrate;
     private int frameRate = 25;
+    private Texture2dProgram.ProgramType mEffectType = Texture2dProgram.ProgramType.TEXTURE_EXT;
 
     /**
      * Constructs CameraSurfaceRenderer.
      * <p>
+     *
      * @param cameraHandler Handler for communicating with UI thread
-     * @param movieEncoder video encoder object
+     * @param movieEncoder  video encoder object
      */
     public CameraSurfaceRenderer(CameraHandler cameraHandler,
                                  TextureMovieEncoder movieEncoder) {
         mCameraHandler = cameraHandler;
         mVideoEncoder = movieEncoder;
-
 
         mTextureId = -1;
 
@@ -80,8 +82,6 @@ public class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
         mIncomingWidth = mIncomingHeight = -1;
 
     }
-
-    private Texture2dProgram.ProgramType mEffectType = Texture2dProgram.ProgramType.TEXTURE_EXT ;
 
     public void setEffect(Texture2dProgram.ProgramType effectType) {
         this.mEffectType = effectType;
@@ -117,7 +117,7 @@ public class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public void stopRecording(){
+    public void stopRecording() {
         mRecordingEnabled = false;
     }
 
@@ -130,23 +130,33 @@ public class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
      */
     public void setCameraPreviewSize(int width, int height) {
         Log.d(TAG, "setCameraPreviewSize");
-        mIncomingWidth = width;
-        mIncomingHeight = height;
-        mIncomingSizeUpdated = true;
-        if (mIncomingHeight >= 720) {
-            bitrate = 850000;
-        } else if (mIncomingHeight >= 480) {
-            bitrate = 550000;
-        } else if (mIncomingHeight >= 360) {
-            bitrate = 450000;
-        } else if (mIncomingHeight >= 288) {
-            bitrate = 350000;
-        } else if (mIncomingHeight >= 240) {
-            bitrate = 250000;
-        } else //if (mIncomingHeight >= 144)
-        {
-            bitrate = 100000;
+
+        if (DEFAULT_QUALITY_OPTIONS) {
+            mIncomingWidth = width;
+            mIncomingHeight = height;
+            mIncomingSizeUpdated = true;
+
+            if (mIncomingHeight >= 720) {
+                bitrate = 850000;
+            } else if (mIncomingHeight >= 480) {
+                bitrate = 550000;
+            } else if (mIncomingHeight >= 360) {
+                bitrate = 450000;
+            } else if (mIncomingHeight >= 288) {
+                bitrate = 350000;
+            } else if (mIncomingHeight >= 240) {
+                bitrate = 250000;
+            } else //if (mIncomingHeight >= 144)
+            {
+                bitrate = 100000;
+            }
+        } else {
+            mIncomingWidth = VIDEO_WIDTH;
+            mIncomingHeight = VIDEO_HEIGHT;
+            mIncomingSizeUpdated = true;
+            bitrate = BITRATE;
         }
+
     }
 
     public int getBitrate() {
@@ -190,15 +200,15 @@ public class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
                 CameraHandler.MSG_SET_SURFACE_TEXTURE, mSurfaceTexture));
     }
 
+    public int getFrameRate() {
+        return mVideoEncoder != null ? mVideoEncoder.getFrameRate() : 0;
+    }
+
     public void setFrameRate(int frameRate) {
         this.frameRate = frameRate;
         if (mVideoEncoder != null) {
             mVideoEncoder.setFrameRate(frameRate);
         }
-    }
-
-    public int getFrameRate() {
-        return mVideoEncoder != null ? mVideoEncoder.getFrameRate() : 0;
     }
 
     @Override
@@ -224,17 +234,16 @@ public class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
 
             switch (mRecordingStatus) {
                 case RECORDING_OFF:
-                    Log.d(TAG, "START recording bitrate: "  +bitrate);
+                    Log.d(TAG, "START recording bitrate: " + bitrate);
                 {
 
                     // start recording
-                   boolean started = mVideoEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
+                    boolean started = mVideoEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
                                     mWriterHandler, mIncomingWidth, mIncomingHeight, bitrate, frameRate, EGL14.eglGetCurrentContext(), mEffectType),
                             mRecordingStartTime);
                     if (started) {
                         mRecordingStatus = RECORDING_ON;
-                    }
-                    else {
+                    } else {
                         mRecordingStatus = RECORDING_OFF;
                     }
                 }
