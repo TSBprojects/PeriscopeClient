@@ -29,7 +29,8 @@ import ru.sstu.vak.periscopeclient.R;
 
 public class MessageFactory {
     private final int SHOW_DURATION = 400;
-    private final int STATE_VISIBLE_DURATION = 6000;
+    private final int STATE_VISIBLE_MESSAGE_DURATION = 6000;
+    private final int STATE_VISIBLE_USER_JOIN_DURATION = 2000;
     private final int REMOVE_DURATION = 1000;
 
     private Context context;
@@ -80,7 +81,7 @@ public class MessageFactory {
         joinedCardVie.setLayoutParams(params);
 
         showLayout(joinedCardVie, SHOW_DURATION);
-        new CountDownTimer(STATE_VISIBLE_DURATION, STATE_VISIBLE_DURATION) {
+        new CountDownTimer(STATE_VISIBLE_USER_JOIN_DURATION, STATE_VISIBLE_USER_JOIN_DURATION) {
             public void onTick(long millisUntilFinished) {
             }
 
@@ -153,7 +154,7 @@ public class MessageFactory {
         messageLayout.setLayoutParams(params);
 
         showLayout(messageLayout, SHOW_DURATION);
-        new CountDownTimer(STATE_VISIBLE_DURATION, STATE_VISIBLE_DURATION) {
+        new CountDownTimer(STATE_VISIBLE_MESSAGE_DURATION, STATE_VISIBLE_MESSAGE_DURATION) {
             public void onTick(long millisUntilFinished) {
             }
 

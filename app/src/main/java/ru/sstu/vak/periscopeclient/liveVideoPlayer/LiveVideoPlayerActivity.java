@@ -479,7 +479,7 @@ public class LiveVideoPlayerActivity extends AppCompatActivity implements OnClic
     }
 
     private int randomColor() {
-        Random mRandom = new Random();
+        Random mRandom = new Random(System.currentTimeMillis());
         return Color.rgb(mRandom.nextInt(255), mRandom.nextInt(255), mRandom.nextInt(255));
     }
 

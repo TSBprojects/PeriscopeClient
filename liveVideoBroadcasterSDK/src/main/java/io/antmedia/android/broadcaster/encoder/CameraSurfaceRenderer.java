@@ -31,6 +31,7 @@ public class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
     private static int BITRATE = 300000;
     private static int VIDEO_WIDTH = 640;
     private static int VIDEO_HEIGHT = 360;
+    private static boolean DEFAULT_QUALITY_OPTIONS = false;
 
     private static final String TAG = CameraSurfaceRenderer.class.getSimpleName();
     private static final boolean VERBOSE = false;
@@ -38,7 +39,6 @@ public class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
     private static final int RECORDING_ON = 1;
     private static final int RECORDING_RESUMED = 2;
     private static final int RECORDER_CONFIG_CHANGED = 3;
-    private static boolean DEFAULT_QUALITY_OPTIONS = false;
     private final float[] mSTMatrix = new float[16];
     private CameraHandler mCameraHandler;
     private TextureMovieEncoder mVideoEncoder;
