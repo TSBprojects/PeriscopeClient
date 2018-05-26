@@ -154,17 +154,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void setCurrentIP() {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
+        Thread t = new Thread(()-> {
                 try {
                     InetAddress ad = InetAddress.getByName(getString(R.string.server_domain_name));
                     RTMP_BASE_URL = String.format("rtmp://%1$s:1935/vod/", getIP(ad.toString()));
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 }
-            }
-        });
+            });
         t.start();
     }
 

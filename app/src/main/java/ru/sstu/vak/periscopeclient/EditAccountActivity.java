@@ -177,7 +177,7 @@ public class EditAccountActivity extends AppCompatActivity implements View.OnCli
 
     private boolean isValidSize(Uri fileUri) {
         //File file = new File(getRealPathFromURI(fileUri));
-        File file = new File(fileUri.toString());
+        File file = new File(fileUri.getPath());
         long s = file.length();
         if (file.length() <= 1048576) {
             return true;
