@@ -83,8 +83,8 @@ public class MapFragment extends Fragment implements View.OnClickListener, OnMap
 
     private static final String ARGUMENT_PAGE_NUMBER = "page_number";
     private final String TAG = "MapFragment";
-    private final String ANDROID_EMULATOR_LOCALHOST = getString(R.string.server_domain_name);
-    private final String SERVER_PORT =  getString(R.string.server_port);
+    private final String ANDROID_EMULATOR_LOCALHOST = "anton-var.ddns.net";
+    private final String SERVER_PORT = "8080";
     View currentView;
     private ArrayList<Marker> markers = new ArrayList<>();
     private RetrofitWrapper retrofitWrapper;
@@ -337,7 +337,7 @@ public class MapFragment extends Fragment implements View.OnClickListener, OnMap
 
     private void initializeServerApi() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(String.format("http://%1$s:%2$s", getString(R.string.server_domain_name), getString(R.string.server_port)))
+                .baseUrl("http://anton-var.ddns.net:8080")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         periscopeApi = retrofit.create(PeriscopeApi.class);
