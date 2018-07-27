@@ -83,8 +83,8 @@ public class MapFragment extends Fragment implements View.OnClickListener, OnMap
 
     private static final String ARGUMENT_PAGE_NUMBER = "page_number";
     private final String TAG = "MapFragment";
-    private final String ANDROID_EMULATOR_LOCALHOST = "anton-var.ddns.net";
-    private final String SERVER_PORT = "8080";
+    private final String ANDROID_EMULATOR_LOCALHOST = getString(R.string.server_domain_name);
+    private final String SERVER_PORT =  getString(R.string.server_port);
     View currentView;
     private ArrayList<Marker> markers = new ArrayList<>();
     private RetrofitWrapper retrofitWrapper;
